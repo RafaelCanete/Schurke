@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class Main extends Game {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
-    
+
     @Override
     public void create() {
         try {
@@ -18,15 +18,15 @@ public class Main extends Game {
             if (batch == null) {
                 throw new RuntimeException("Failed to create SpriteBatch");
             }
-            
+
             shapeRenderer = new ShapeRenderer();
             if (shapeRenderer == null) {
                 throw new RuntimeException("Failed to create ShapeRenderer");
             }
-            
+
             StartScreen startScreen = new StartScreen(this);
             setScreen(startScreen);
-            
+
         } catch (Exception e) {
             Gdx.app.error("Main", "Error creating game", e);
             // Clean up resources if initialization failed
@@ -50,11 +50,11 @@ public class Main extends Game {
             }
         }
     }
-    
+
     public SpriteBatch getBatch() {
         return batch;
     }
-    
+
     public ShapeRenderer getShapeRenderer() {
         return shapeRenderer;
     }
@@ -63,7 +63,7 @@ public class Main extends Game {
     public void render() {
         super.render();
     }
-    
+
     @Override
     public void dispose() {
         super.dispose();

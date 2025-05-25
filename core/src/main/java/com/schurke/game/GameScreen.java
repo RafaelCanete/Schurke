@@ -1,17 +1,20 @@
 package com.schurke.game;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -31,22 +34,29 @@ public class GameScreen implements Screen {
     private static final float DEATH_DELAY = 0.5f; // Half second delay before transition
     private BitmapFont font;
     private SpriteBatch hudBatch;
+    private ArrayList<Bullet> bullets;
+    private Weapon currentWeapon;
+    private CombatController combatController;
+    private BulletManager bulletManager;
+    private AimRenderer aimRenderer;
 
     public GameScreen(Main game) {
         this.game = game;
         this.batch = game.getBatch();
         this.shape = game.getShapeRenderer();
-        
+
         this.gameOver = false;
         this.deathTimer = 0;
-        
+
         // Initialize map and player
         this.map = new TileMap();
         this.player = new Player(map.getCenter(), 100f, 25f);
+
         
         // Game camera and viewport
         this.camera = new OrthographicCamera();
-        this.viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(), camera);
+        this.viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(),
+        camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
         
@@ -62,6 +72,17 @@ public class GameScreen implements Screen {
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         hudBatch = new SpriteBatch();
+        
+        // Spawn Enemies
+        enemyManager = new EnemyManager(map);
+        enemyManager.spawnEnemy(10);
+        
+        //
+        this.bullets = new ArrayList<>();
+        this.currentWeapon = new Pistol();
+        this.combatController = new CombatController(player, currentWeapon, camera, bullets);
+        this.bulletManager = new BulletManager(bullets, enemyManager);
+        this.aimRenderer = new AimRenderer(camera, player);
     }
 
     @Override
@@ -81,7 +102,7 @@ public class GameScreen implements Screen {
         }
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-
+        // Kamera & Projektionen
         camera.position.set(player.getPosition().x, player.getPosition().y, 0);
         camera.update();
 
@@ -89,19 +110,27 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         shape.setProjectionMatrix(camera.combined);
 
+        // Welt zeichnen
         batch.begin();
         batch.draw(image, 140, 210);
         map.render(batch);
         batch.end();
 
+        // Shape Rendering
         shape.begin(ShapeRenderer.ShapeType.Filled);
         player.render(shape);
+        aimRenderer.render(shape);
         enemyManager.render(shape);
         if (!gameOver) {
             enemyManager.update(player);
             player.update(map);
+            combatController.update(delta);
+            bulletManager.updateAndRender(delta, shape);
         }
         shape.end();
+
+        // HUD
+        renderHUD();
 
         // UI rendering with separate camera
         uiViewport.apply();
@@ -141,9 +170,28 @@ public class GameScreen implements Screen {
         shape.end();
     }
 
+    private void renderHUD() {
+        shape.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        playerHealthBar.render(shape);
+        shape.end();
+
+        hudBatch.begin();
+        if (GameConfig.isUnlimitedAmmo()) {
+            font.draw(hudBatch, "Ammo: ∞", 20, 40);
+        } else {
+            font.draw(hudBatch, "Ammo: " + currentWeapon.getCurrentAmmo() + "/" + currentWeapon.getReserveAmmo(), 20,
+                    40);
+        }
+        if (currentWeapon.isReloading()) {
+            font.draw(hudBatch, "Reloading...", 20, 70);
+        }
+        hudBatch.end();
+    }
+
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(null);  // Game screen doesn't need input processor
+        Gdx.input.setInputProcessor(null); // Game screen doesn't need input processor
     }
 
     @Override
@@ -168,10 +216,14 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         try {
-            if (image != null) image.dispose();
-            if (map != null) map.dispose();
-            if (font != null) font.dispose();
-            if (hudBatch != null) hudBatch.dispose();
+            if (image != null)
+                image.dispose();
+            if (map != null)
+                map.dispose();
+            if (font != null)
+                font.dispose();
+            if (hudBatch != null)
+                hudBatch.dispose();
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
