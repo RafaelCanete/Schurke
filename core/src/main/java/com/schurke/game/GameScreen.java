@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -28,32 +29,39 @@ public class GameScreen implements Screen {
     private boolean gameOver;
     private float deathTimer;
     private static final float DEATH_DELAY = 0.5f; // Half second delay before transition
+    private BitmapFont font;
+    private SpriteBatch hudBatch;
 
     public GameScreen(Main game) {
         this.game = game;
         this.batch = game.getBatch();
         this.shape = game.getShapeRenderer();
+        
         this.gameOver = false;
         this.deathTimer = 0;
         
-        image = new Texture("libgdx.png");
-        map = new TileMap();
-        player = new Player(map.getCenter(), 100f, 25f);
+        // Initialize map and player
+        this.map = new TileMap();
+        this.player = new Player(map.getCenter(), 100f, 25f);
         
         // Game camera and viewport
-        camera = new OrthographicCamera();
-        viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(), camera);
-        viewport.apply();
-        camera.position.set(map.getCenter(), 0);
+        this.camera = new OrthographicCamera();
+        this.viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(), camera);
+        this.viewport.apply();
+        this.camera.position.set(map.getCenter(), 0);
         
         // UI camera and viewport
-        uiCamera = new OrthographicCamera();
-        uiViewport = new ScreenViewport(uiCamera);
-        uiViewport.apply();
+        this.uiCamera = new OrthographicCamera();
+        this.uiViewport = new ScreenViewport(uiCamera);
+        this.uiViewport.apply();
         
-        enemyManager = new EnemyManager(map);
-        enemyManager.spawnEnemy(10);
-        playerHealthBar = new HealthBar(player, 20f);
+        // Initialize game elements
+        this.enemyManager = new EnemyManager(map);
+        this.playerHealthBar = new HealthBar(player, 20f);
+        this.image = new Texture("libgdx.png");
+        font = new BitmapFont();
+        font.getData().setScale(2.0f);
+        hudBatch = new SpriteBatch();
     }
 
     @Override
@@ -61,12 +69,7 @@ public class GameScreen implements Screen {
         if (gameOver) {
             deathTimer += delta;
             if (deathTimer >= DEATH_DELAY) {
-                try {
-                    Screen gameOverScreen = new GameOverScreen(game);
-                    game.setScreen(gameOverScreen);
-                } catch (Exception e) {
-                    Gdx.app.error("GameScreen", "Error transitioning to GameOverScreen", e);
-                }
+                game.setScreen(new GameOverScreen(game));
                 return;
             }
         }
@@ -167,6 +170,8 @@ public class GameScreen implements Screen {
         try {
             if (image != null) image.dispose();
             if (map != null) map.dispose();
+            if (font != null) font.dispose();
+            if (hudBatch != null) hudBatch.dispose();
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
