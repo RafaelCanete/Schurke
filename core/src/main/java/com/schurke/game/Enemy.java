@@ -6,24 +6,42 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-public class Enemy {
+public class    Enemy {
     private Vector2 position;
     private static float size = 20f;
     private float damageCooldown;
     private float health;
+    private float maxHealth;
     private float attackDamage;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage){
         this.position = new Vector2(position);
         this.health = health;
+        this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
     }
 
     public void render(ShapeRenderer shape){
         if (position != null) {
+            // Render enemy body
             shape.setColor(1, 0, 0, 1);
             shape.rect(position.x, position.y, size, size);
+
+            // Render health bar
+            float healthBarWidth = size;
+            float healthBarHeight = 4f;
+            float healthPercentage = health / maxHealth;
+
+            // Health bar background
+            shape.setColor(0.3f, 0.3f, 0.3f, 1f);
+            shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
+
+            // Health bar fill - color transitions from green to red based on health
+            float r = 1 - healthPercentage;
+            float g = healthPercentage;
+            shape.setColor(r, g, 0, 1f);
+            shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
         }
     }
 
@@ -66,5 +84,17 @@ public class Enemy {
 
     public boolean isDead(){
         return health <= 0;
+    }
+
+    public void takeDamage(float amount) {
+        this.health -= amount;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
     }
 }
