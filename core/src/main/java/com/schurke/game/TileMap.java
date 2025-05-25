@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 public class TileMap {
     private static int tileSize = 64;
     private static int mapWidth = 20;
-    private static int mapHeight =15;
+    private static int mapHeight = 15;
 
     private Texture grassTexture;
 

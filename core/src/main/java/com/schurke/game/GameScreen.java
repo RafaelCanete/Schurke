@@ -76,10 +76,10 @@ public class GameScreen implements Screen {
         // Spawn Enemies
         enemyManager = new EnemyManager(map);
         enemyManager.spawnEnemy(10);
-        
+
         //
         this.bullets = new ArrayList<>();
-        this.currentWeapon = new Pistol();
+        this.currentWeapon = new Shotgun();
         this.combatController = new CombatController(player, currentWeapon, camera, bullets);
         this.bulletManager = new BulletManager(bullets, enemyManager);
         this.aimRenderer = new AimRenderer(camera, player);
