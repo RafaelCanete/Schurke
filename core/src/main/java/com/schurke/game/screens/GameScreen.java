@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -67,7 +68,7 @@ public class GameScreen implements Screen {
 
         // Game camera and viewport
         this.camera = new OrthographicCamera();
-        this.viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(),
+        this.viewport = new ExtendViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(),
         camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
