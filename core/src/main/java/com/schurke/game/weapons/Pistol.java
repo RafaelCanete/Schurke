@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.weapons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.combat.Bullet;
+import com.schurke.game.core.GameConfig;
 
 public class Pistol implements Weapon {
     private final Sound shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pistol/shoot.wav"));

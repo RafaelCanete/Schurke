@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.combat;
 
 import java.util.List;
 
@@ -7,6 +7,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.schurke.game.entities.Player;
+import com.schurke.game.weapons.Weapon;
 
 public class CombatController {
     private final Weapon weapon;

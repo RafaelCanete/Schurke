@@ -1,22 +1,29 @@
-package com.schurke.game;
+package com.schurke.game.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.entities.Player;
 
 public class HealthBar {
     private float width;
     private float height;
-    private Vector2 position = new Vector2(20f, Gdx.graphics.getHeight()-height-40f);
+    private Vector2 position;
     private Player player;
 
     public HealthBar(Player player, float height) {
         this.player = player;
         this.height = height;
         this.width = player.getMaxHealth();
+        updatePosition();
     }
 
-    public void render(ShapeRenderer shape){
+    private void updatePosition() {
+        this.position = new Vector2(20f, Gdx.graphics.getHeight() - this.height - 40f);
+    }
+
+    public void render(ShapeRenderer shape) {
+        updatePosition(); // Update position each frame to handle window resizing
         float maxHealth = player.getMaxHealth();
         float currentHealth = player.getHealth();
         // Background of Healthbar

@@ -1,4 +1,12 @@
-package com.schurke.game;
+package com.schurke.game.entities;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.map.TileMap;
 
 import java.util.ArrayList;
 import java.util.Random;

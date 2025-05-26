@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.entities;
 
 import java.util.ArrayList;
 
@@ -11,19 +11,37 @@ public class Enemy {
     private static float size = 20f;
     private float damageCooldown;
     private float health;
+    private float maxHealth;
     private float attackDamage;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
         this.health = health;
+        this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
     }
 
     public void render(ShapeRenderer shape) {
         if (position != null) {
+            // Render enemy body
             shape.setColor(1, 0, 0, 1);
             shape.rect(position.x, position.y, size, size);
+
+            // Render health bar
+            float healthBarWidth = size;
+            float healthBarHeight = 4f;
+            float healthPercentage = health / maxHealth;
+
+            // Health bar background
+            shape.setColor(0.3f, 0.3f, 0.3f, 1f);
+            shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
+
+            // Health bar fill - color transitions from green to red based on health
+            float r = 1 - healthPercentage;
+            float g = healthPercentage;
+            shape.setColor(r, g, 0, 1f);
+            shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
         }
     }
 
@@ -43,8 +61,7 @@ public class Enemy {
         float separationStrength = 100f;
 
         for (Enemy other : allEnemies) {
-            if (other == this)
-                continue;
+            if (other == this) continue;
 
             float distance = this.position.dst(other.position);
             if (distance < separationDistance && distance > 0.01f) {
@@ -72,6 +89,14 @@ public class Enemy {
 
     public void takeDamage(float amount) {
         this.health -= amount;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
     }
 
     public static float getSize() {
