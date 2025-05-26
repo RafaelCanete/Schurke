@@ -21,6 +21,7 @@ public class StartScreen implements Screen {
     private SpriteBatch batch;
     private BitmapFont font;
     private Texture backgroundTexture;
+    private TextButton startButton;
 
     public StartScreen(Main game) {
         this.game = game;
@@ -39,7 +40,7 @@ public class StartScreen implements Screen {
         textButtonStyle.fontColor = Color.RED;
 
         // Create start button
-        TextButton startButton = new TextButton("Start Game", textButtonStyle);
+        this.startButton = new TextButton("Start Game", textButtonStyle);
         startButton.setPosition(Gdx.graphics.getWidth()/2f - startButton.getWidth()/2f,
                               Gdx.graphics.getHeight()/2f - startButton.getHeight()/2f);
 
@@ -73,11 +74,6 @@ public class StartScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
     public void pause() {
     }
 
@@ -95,5 +91,16 @@ public class StartScreen implements Screen {
         batch.dispose();
         font.dispose();
         backgroundTexture.dispose();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true); // Update viewport and re-center camera if needed
+
+        // Re-center the button
+        startButton.setPosition(
+            width / 2f - startButton.getWidth() / 2f,
+            height / 2f - startButton.getHeight() / 2f
+        );
     }
 }

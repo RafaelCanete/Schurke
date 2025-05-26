@@ -55,8 +55,8 @@ public class PauseScreen implements Screen {
         });
 
         // Create exit button
-        TextButton exitButton = new TextButton("Exit Game", textButtonStyle);
-        exitButton.addListener(new ChangeListener() {
+        TextButton backToMenu = new TextButton("Back To Menu", textButtonStyle);
+        backToMenu.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new StartScreen(game));
@@ -65,7 +65,7 @@ public class PauseScreen implements Screen {
 
         // Add buttons to table
         table.add(continueButton).pad(10).row();
-        table.add(exitButton).pad(10);
+        table.add(backToMenu).pad(10);
 
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);

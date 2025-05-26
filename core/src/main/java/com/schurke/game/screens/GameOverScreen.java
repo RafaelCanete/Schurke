@@ -68,8 +68,8 @@ public class GameOverScreen implements Screen {
             });
 
             // Create exit button
-            TextButton exitButton = new TextButton("Exit Game", textButtonStyle);
-            exitButton.addListener(new ChangeListener() {
+            TextButton backToMenu = new TextButton("Back", textButtonStyle);
+            backToMenu.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     try {
@@ -81,10 +81,25 @@ public class GameOverScreen implements Screen {
                 }
             });
 
+            // close game button
+            TextButton closeGameButton = new TextButton("Close Game", textButtonStyle);
+            closeGameButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    try {
+                        dispose();
+                        Gdx.app.exit();
+                    } catch (Exception e) {
+                        Gdx.app.error("GameOverScreen", "Error returning to start screen", e);
+                    }
+                }
+            });
+
             // Add widgets to table with spacing
             table.add(titleLabel).padBottom(50).row();
             table.add(restartButton).pad(10).row();
-            table.add(exitButton).pad(10);
+            table.add(backToMenu).pad(10).row();
+            table.add(closeGameButton).pad(10);
 
             stage.addActor(table);
             Gdx.input.setInputProcessor(stage);
