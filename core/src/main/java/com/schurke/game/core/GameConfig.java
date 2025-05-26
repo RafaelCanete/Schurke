@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.core;
 
 public class GameConfig {
     private static boolean unlimitedAmmo = false;

@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.screens;
 
 import java.util.ArrayList;
 
@@ -15,6 +15,18 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.schurke.game.Main;
+import com.schurke.game.combat.Bullet;
+import com.schurke.game.combat.BulletManager;
+import com.schurke.game.combat.CombatController;
+import com.schurke.game.core.GameConfig;
+import com.schurke.game.entities.EnemyManager;
+import com.schurke.game.entities.Player;
+import com.schurke.game.input.AimRenderer;
+import com.schurke.game.map.TileMap;
+import com.schurke.game.ui.HealthBar;
+import com.schurke.game.weapons.Shotgun;
+import com.schurke.game.weapons.Weapon;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -52,19 +64,19 @@ public class GameScreen implements Screen {
         this.map = new TileMap();
         this.player = new Player(map.getCenter(), 100f, 25f);
 
-        
+
         // Game camera and viewport
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(),
         camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
-        
+
         // UI camera and viewport
         this.uiCamera = new OrthographicCamera();
         this.uiViewport = new ScreenViewport(uiCamera);
         this.uiViewport.apply();
-        
+
         // Initialize game elements
         this.enemyManager = new EnemyManager(map);
         this.playerHealthBar = new HealthBar(player, 20f);
@@ -72,7 +84,7 @@ public class GameScreen implements Screen {
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         hudBatch = new SpriteBatch();
-        
+
         // Spawn Enemies
         enemyManager = new EnemyManager(map);
         enemyManager.spawnEnemy(10);

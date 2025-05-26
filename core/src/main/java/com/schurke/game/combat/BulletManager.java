@@ -1,9 +1,11 @@
-package com.schurke.game;
+package com.schurke.game.combat;
 
 import java.util.Iterator;
 import java.util.List;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.schurke.game.entities.Enemy;
+import com.schurke.game.entities.EnemyManager;
 
 public class BulletManager {
     private final List<Bullet> bullets;

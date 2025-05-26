@@ -1,7 +1,8 @@
-package com.schurke.game;
+package com.schurke.game.entities;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.map.TileMap;
 
 public class Player {
     private Vector2 position;

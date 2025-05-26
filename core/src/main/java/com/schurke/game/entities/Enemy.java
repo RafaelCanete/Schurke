@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.entities;
 
 import java.util.ArrayList;
 

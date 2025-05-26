@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.schurke.game.Main;
 
 public class StartScreen implements Screen {
     private Main game;
@@ -28,27 +29,27 @@ public class StartScreen implements Screen {
         font = new BitmapFont();
         font.getData().setScale(3.0f); // Make the font 3 times bigger
         font.setColor(Color.RED); // Set font color to red
-        
+
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("textures/BackgroundStart.png"));
-        
+
         // Create button style
         TextButtonStyle textButtonStyle = new TextButtonStyle();
         textButtonStyle.font = font;
         textButtonStyle.fontColor = Color.RED;
-        
+
         // Create start button
         TextButton startButton = new TextButton("Start Game", textButtonStyle);
-        startButton.setPosition(Gdx.graphics.getWidth()/2f - startButton.getWidth()/2f, 
+        startButton.setPosition(Gdx.graphics.getWidth()/2f - startButton.getWidth()/2f,
                               Gdx.graphics.getHeight()/2f - startButton.getHeight()/2f);
-        
+
         startButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.startGame();
             }
         });
-        
+
         stage.addActor(startButton);
         Gdx.input.setInputProcessor(stage);
     }
@@ -61,12 +62,12 @@ public class StartScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+
         // Draw background
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
-        
+
         stage.act(delta);
         stage.draw();
     }

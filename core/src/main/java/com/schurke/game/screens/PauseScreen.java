@@ -1,4 +1,4 @@
-package com.schurke.game;
+package com.schurke.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.schurke.game.Main;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 

@@ -1,8 +1,9 @@
-package com.schurke.game;
+package com.schurke.game.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.entities.Player;
 
 public class HealthBar {
     private float width;

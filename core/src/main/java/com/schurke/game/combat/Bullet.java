@@ -1,7 +1,8 @@
-package com.schurke.game;
+package com.schurke.game.combat;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.schurke.game.entities.Enemy;
 
 public class Bullet {
     private Vector2 position;
