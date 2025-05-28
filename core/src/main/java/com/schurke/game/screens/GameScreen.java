@@ -58,15 +58,13 @@ public class GameScreen implements Screen {
         this.gameOver = false;
         this.deathTimer = 0;
 
-        // Initialize map and player
+        // Initialize map, camera and player
         this.map = new TileMap();
-        this.player = new Player(map.getCenter(), 100f, 50f); // Increased size from 25f to 50f
-
-
-        // Game camera and viewport
         this.camera = new OrthographicCamera();
-        this.viewport = new ExtendViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(),
-        camera);
+        this.viewport = new ExtendViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(), camera);
+        this.viewport.apply();
+        this.camera.position.set(map.getCenter(), 0);
+        this.player = new Player(map.getCenter(), 100f, 100f, camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
 
