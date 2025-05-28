@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.schurke.game.Main;
@@ -23,7 +22,6 @@ import com.schurke.game.combat.CombatController;
 import com.schurke.game.core.GameConfig;
 import com.schurke.game.entities.EnemyManager;
 import com.schurke.game.entities.Player;
-import com.schurke.game.input.AimRenderer;
 import com.schurke.game.map.TileMap;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.weapons.Shotgun;
@@ -51,7 +49,6 @@ public class GameScreen implements Screen {
     private Weapon currentWeapon;
     private CombatController combatController;
     private BulletManager bulletManager;
-    private AimRenderer aimRenderer;
 
     public GameScreen(Main game) {
         this.game = game;
@@ -63,7 +60,7 @@ public class GameScreen implements Screen {
 
         // Initialize map and player
         this.map = new TileMap();
-        this.player = new Player(map.getCenter(), 100f, 25f);
+        this.player = new Player(map.getCenter(), 100f, 50f); // Increased size from 25f to 50f
 
 
         // Game camera and viewport
@@ -95,7 +92,6 @@ public class GameScreen implements Screen {
         this.currentWeapon = new Shotgun();
         this.combatController = new CombatController(player, currentWeapon, camera, bullets);
         this.bulletManager = new BulletManager(bullets, enemyManager);
-        this.aimRenderer = new AimRenderer(camera, player);
     }
 
     @Override
@@ -127,12 +123,11 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(image, 140, 210);
         map.render(batch);
+        player.render(batch); // Now using SpriteBatch for player
         batch.end();
 
         // Shape Rendering
         shape.begin(ShapeRenderer.ShapeType.Filled);
-        player.render(shape);
-        aimRenderer.render(shape);
         enemyManager.render(shape);
         if (!gameOver) {
             enemyManager.update(player);
@@ -168,10 +163,10 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(image, 140, 210);
         map.render(batch);
+        player.render(batch); // Now using SpriteBatch for player
         batch.end();
 
         shape.begin(ShapeRenderer.ShapeType.Filled);
-        player.render(shape);
         enemyManager.render(shape);
         shape.end();
 
@@ -237,6 +232,9 @@ public class GameScreen implements Screen {
                 font.dispose();
             if (hudBatch != null)
                 hudBatch.dispose();
+            if (player != null) {
+                player.dispose();
+            }
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
