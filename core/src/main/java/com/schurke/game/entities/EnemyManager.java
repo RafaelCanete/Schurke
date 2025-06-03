@@ -3,16 +3,10 @@ package com.schurke.game.entities;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.map.TileMap;
-
-import java.util.ArrayList;
-import java.util.Random;
-
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
@@ -45,9 +39,21 @@ public class EnemyManager {
         enemies.removeIf(Enemy::isDead);
     }
 
-    public void render(ShapeRenderer shape) {
+    // ✅ Draw only enemy textures
+    public void render(SpriteBatch batch) {
         for (Enemy enemy : enemies) {
-            enemy.render(shape);
+            enemy.render(batch);
         }
+    }
+
+    // ✅ Draw only health bars
+    public void renderHealthBars(ShapeRenderer shape) {
+        for (Enemy enemy : enemies) {
+            enemy.renderHealthBar(shape);
+        }
+    }
+
+    public boolean hasNoEnemies() {
+        return enemies.isEmpty();
     }
 }

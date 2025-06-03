@@ -1,18 +1,20 @@
 package com.schurke.game.entities;
 
 import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 public class Enemy {
     private Vector2 position;
-    private static float size = 20f;
+    private static float size = 70f;
     private float damageCooldown;
     private float health;
     private float maxHealth;
     private float attackDamage;
+    private Texture texture;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
@@ -20,29 +22,29 @@ public class Enemy {
         this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
+        this.texture = new Texture(Gdx.files.internal("characters/enemy.png"));
     }
 
-    public void render(ShapeRenderer shape) {
-        if (position != null) {
-            // Render enemy body
-            shape.setColor(1, 0, 0, 1);
-            shape.rect(position.x, position.y, size, size);
-
-            // Render health bar
-            float healthBarWidth = size;
-            float healthBarHeight = 4f;
-            float healthPercentage = health / maxHealth;
-
-            // Health bar background
-            shape.setColor(0.3f, 0.3f, 0.3f, 1f);
-            shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
-
-            // Health bar fill - color transitions from green to red based on health
-            float r = 1 - healthPercentage;
-            float g = healthPercentage;
-            shape.setColor(r, g, 0, 1f);
-            shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
+  
+    public void render(SpriteBatch batch) {
+        if (position != null && texture != null) {
+            batch.draw(texture, position.x, position.y, size, size);
         }
+    }
+
+  
+    public void renderHealthBar(ShapeRenderer shape) {
+        float healthBarWidth = size;
+        float healthBarHeight = 4f;
+        float healthPercentage = health / maxHealth;
+
+        shape.setColor(0.3f, 0.3f, 0.3f, 1f);
+        shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
+
+        float r = 1 - healthPercentage;
+        float g = healthPercentage;
+        shape.setColor(r, g, 0, 1f);
+        shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
     }
 
     public Vector2 getPosition() {
@@ -79,7 +81,6 @@ public class Enemy {
                 player.takeDamage(this.attackDamage);
                 damageCooldown = 1.0f;
             }
-            return;
         }
     }
 
@@ -103,4 +104,7 @@ public class Enemy {
         return size;
     }
 
+    public void dispose() {
+        if (texture != null) texture.dispose();
+    }
 }

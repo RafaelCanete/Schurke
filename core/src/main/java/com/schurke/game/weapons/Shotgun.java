@@ -22,9 +22,9 @@ public class Shotgun implements Weapon {
     private final int pelletCount = 3;
     private final float spreadAngle = 20f;
 
-    private final int magazineSize = 2;
+    private final int magazineSize = 100;
     private int currentAmmo = magazineSize;
-    private int reserveAmmo = 30;
+    private int reserveAmmo = 10000;
 
     @Override
     public List<Bullet> shoot(Vector2 position, Vector2 direction) {
