@@ -13,7 +13,7 @@ public class PowerUps {
 
     public PowerUps(Vector2 position) {
         this.position = position;
-        this.texture = new Texture(Gdx.files.internal("powerups/infHealth.png")); // ✅ make sure this path matches your PNG
+        this.texture = new Texture(Gdx.files.internal("powerups/infHealth.png"));
     }
 
     public void render(SpriteBatch batch) {
@@ -27,6 +27,7 @@ public class PowerUps {
 
     public void applyEffect(Player player) {
         player.setInvincible(true);
+        player.addHealth(20f);
     }
 
     public void dispose() {

@@ -2,6 +2,7 @@ package com.schurke.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.schurke.game.Main;
 
@@ -22,6 +22,7 @@ public class StartScreen implements Screen {
     private BitmapFont font;
     private Texture backgroundTexture;
     private TextButton startButton;
+    private TextButton closeButton;
 
     public StartScreen(Main game) {
         this.game = game;
@@ -30,6 +31,13 @@ public class StartScreen implements Screen {
         font = new BitmapFont();
         font.getData().setScale(3.0f); // Make the font 3 times bigger
         font.setColor(Color.RED); // Set font color to red
+
+        // Calculate center position
+        float centerX = Gdx.graphics.getWidth() / 2f;
+        float centerY = Gdx.graphics.getHeight() / 2f;
+
+        // Vertical spacing between buttons
+        float spacing = 200f;
 
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("textures/BackgroundStart.png"));
@@ -41,8 +49,8 @@ public class StartScreen implements Screen {
 
         // Create start button
         this.startButton = new TextButton("Start Game", textButtonStyle);
-        startButton.setPosition(Gdx.graphics.getWidth()/2f - startButton.getWidth()/2f,
-                              Gdx.graphics.getHeight()/2f - startButton.getHeight()/2f);
+        startButton.setPosition(centerX - startButton.getWidth() / 2f,
+                        centerY + startButton.getHeight() / 2f + spacing / 2f);
 
         startButton.addListener(new ChangeListener() {
             @Override
@@ -51,7 +59,19 @@ public class StartScreen implements Screen {
             }
         });
 
+        // Create close Game button
+        this.closeButton = new TextButton("Exit Game", textButtonStyle);
+       closeButton.setPosition(centerX - closeButton.getWidth() / 2f,
+                        centerY - closeButton.getHeight() / 2f - spacing / 2f);
+
+        closeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
         stage.addActor(startButton);
+        stage.addActor(closeButton);
         Gdx.input.setInputProcessor(stage);
     }
 

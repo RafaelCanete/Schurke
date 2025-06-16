@@ -164,6 +164,12 @@ public class Player {
         return maxHealth;
     }
 
+    public void addHealth(float healthPoints) {
+        if ((health + healthPoints) < maxHealth) {
+            this.health =+ healthPoints;
+        }
+    }
+
     public boolean isDead() {
         return health <= 0;
     }
