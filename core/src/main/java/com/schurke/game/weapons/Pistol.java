@@ -22,7 +22,7 @@ public class Pistol implements Weapon {
     private final int magazineSize = 10;
 
     private int currentAmmo = magazineSize;
-    private int reserveAmmo = 90;
+    private int reserveAmmo = 900;
 
     @Override
     public List<Bullet> shoot(Vector2 position, Vector2 direction) {

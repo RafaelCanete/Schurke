@@ -134,8 +134,8 @@ public class GameScreen implements Screen {
             combatController.update(delta);
             bulletManager.updateAndRender(delta, shape);
 
-            // ✅ Power-up logic: spawn + apply (if round >= 3)
-            powerUpsManager.update(delta, player, roundManager.getCurrentRound());
+            // Power-up logic now depends on player level
+            powerUpsManager.update(delta, player);
         }
         enemyManager.renderHealthBars(shape);
         shape.end();

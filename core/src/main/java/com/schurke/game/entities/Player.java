@@ -16,7 +16,7 @@ public class Player {
     private float maxHealth;
 
     private int score = 0;
-    private int level = 1;
+    private int level = 3;
     private int xp = 0;
     private int xpForNextLevel = 200;
 
@@ -170,9 +170,7 @@ public class Player {
     }
 
     public void addHealth(float healthPoints) {
-        if ((health + healthPoints) < maxHealth) {
-            this.health =+ healthPoints;
-        }
+        this.health = Math.min(this.health + healthPoints, this.maxHealth);
     }
 
     public boolean isDead() {

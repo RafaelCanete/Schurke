@@ -6,12 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.entities.Player;
 
-public class PowerUps {
+public class HealthPowerUp {
     private Vector2 position;
     private Texture texture;
     private static final float SIZE = 40f;
+    private static final float HEAL_AMOUNT = 50f;
 
-    public PowerUps(Vector2 position) {
+    public HealthPowerUp(Vector2 position) {
         this.position = position;
         this.texture = new Texture(Gdx.files.internal("powerups/infHealth.png"));
     }
@@ -21,16 +22,18 @@ public class PowerUps {
     }
 
     public boolean isPickedUp(Player player) {
-        float distance = player.getPosition().dst(position);
-        return distance < (SIZE + player.getSize()) / 2f;
+        return player.getBounds().contains(position.x + SIZE / 2, position.y + SIZE / 2);
     }
 
     public void applyEffect(Player player) {
-        player.setInvincible(true);
-        player.addHealth(20f);
+        player.addHealth(HEAL_AMOUNT);
     }
 
     public void dispose() {
         texture.dispose();
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 }
