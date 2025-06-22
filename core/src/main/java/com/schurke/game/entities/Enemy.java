@@ -15,6 +15,7 @@ public class Enemy {
     private float maxHealth;
     private float attackDamage;
     private Texture texture;
+    private int scoreValue = 10;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
@@ -98,6 +99,10 @@ public class Enemy {
 
     public float getMaxHealth() {
         return maxHealth;
+    }
+
+    public int getScoreValue() {
+        return scoreValue;
     }
 
     public static float getSize() {

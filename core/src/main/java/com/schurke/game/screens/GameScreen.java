@@ -25,7 +25,8 @@ import com.schurke.game.entities.EnemyManager;
 import com.schurke.game.entities.Player;
 import com.schurke.game.map.TileMap;
 import com.schurke.game.ui.HealthBar;
-import com.schurke.game.weapons.Shotgun;
+import com.schurke.game.ui.LevelBar;
+import com.schurke.game.weapons.Pistol;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
 
@@ -52,6 +53,7 @@ public class GameScreen implements Screen {
     private CombatController combatController;
     private BulletManager bulletManager;
     private RoundManager roundManager;
+    private LevelBar levelBar;
 
     // PowerUps
     private PowerUpsManager powerUpsManager;
@@ -80,9 +82,10 @@ public class GameScreen implements Screen {
         this.font = new BitmapFont();
         this.font.getData().setScale(2.0f);
         this.hudBatch = new SpriteBatch();
+        this.levelBar = new LevelBar(player, font);
 
         this.bullets = new ArrayList<>();
-        this.currentWeapon = new Shotgun();
+        this.currentWeapon = new Pistol();
         this.combatController = new CombatController(player, currentWeapon, camera, bullets);
         this.bulletManager = new BulletManager(bullets, enemyManager);
         this.roundManager = new RoundManager(enemyManager);
@@ -125,7 +128,7 @@ public class GameScreen implements Screen {
         // Update game logic and draw health bars
         shape.begin(ShapeRenderer.ShapeType.Filled);
         if (!gameOver) {
-            roundManager.update();
+            roundManager.update(player);
             enemyManager.update(player);
             player.update(map);
             combatController.update(delta);
@@ -146,6 +149,9 @@ public class GameScreen implements Screen {
         shape.begin(ShapeRenderer.ShapeType.Filled);
         playerHealthBar.render(shape);
         shape.end();
+
+        // Render the new level bar
+        levelBar.render(shape, hudBatch);
 
         if (player.isDead() && !gameOver) {
             gameOver = true;
@@ -191,15 +197,8 @@ public class GameScreen implements Screen {
             font.draw(hudBatch, "Ammo: " + currentWeapon.getCurrentAmmo() + "/" + currentWeapon.getReserveAmmo(), 20, 40);
         }
 
-        font.draw(hudBatch, "Round: " + roundManager.getCurrentRound(), 20, 80);
-
         if (currentWeapon.isReloading()) {
-            font.draw(hudBatch, "Reloading...", 20, 70);
-        }
-
-        if (roundManager.isRoundStarting()) {
-            String msg = "Round " + (roundManager.getCurrentRound() + 1) + " in " + roundManager.getCountdownNumber();
-            font.draw(hudBatch, msg, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
+            font.draw(hudBatch, "Reloading...", 20, 80);
         }
 
         if (player.isInvincible()) {
@@ -223,6 +222,7 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         viewport.update(width, height, true);
         uiViewport.update(width, height, true);
+        levelBar.resize(width, height);
     }
 
     @Override

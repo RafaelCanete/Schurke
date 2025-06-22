@@ -15,6 +15,11 @@ public class Player {
     private float health;
     private float maxHealth;
 
+    private int score = 0;
+    private int level = 1;
+    private int xp = 0;
+    private int xpForNextLevel = 200;
+
     private boolean invincible;
     private float invincibleTimer;
 
@@ -185,5 +190,38 @@ public class Player {
         rightTexture.dispose();
         leftWalkingTexture.dispose();
         rightWalkingTexture.dispose();
+    }
+
+    public void addXP(int amount) {
+        this.xp += amount;
+        while (xp >= xpForNextLevel) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        xp -= xpForNextLevel;
+        level++;
+        xpForNextLevel = 200 + (level - 1) * 100;
+    }
+
+    public void addScore(int amount) {
+        this.score += amount;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public int getXpForNextLevel() {
+        return xpForNextLevel;
     }
 }
