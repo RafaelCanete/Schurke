@@ -10,13 +10,13 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Enemy {
     private Vector2 position;
-    private static float size = 70f;
+    private float size;
     private float damageCooldown;
     private float health;
     private float maxHealth;
     private float attackDamage;
     private Texture texture;
-    private int scoreValue = 10;
+    private int scoreValue;
     private boolean isHit = false;
     private float hitTimer = 0f;
     private static final float HIT_DURATION = 0.2f;
@@ -38,11 +38,15 @@ public class Enemy {
                 sharedBatTexture = new Texture(Gdx.files.internal("characters/new/enemy_bat.png"));
             }
             this.texture = sharedBatTexture;
+            this.scoreValue = 15;
+            this.size = 60f;
         } else {
             if (sharedSpiderTexture == null) {
                 sharedSpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
             }
             this.texture = sharedSpiderTexture;
+            this.scoreValue = 25;
+            this.size = 90f;
         }
     }
 
@@ -152,7 +156,7 @@ public class Enemy {
         return scoreValue;
     }
 
-    public static float getSize() {
+    public float getSize() {
         return size;
     }
 

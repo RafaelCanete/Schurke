@@ -31,7 +31,7 @@ public class Bullet {
     }
 
     public boolean collidesWith(Enemy enemy) {
-        float halfSize = Enemy.getSize() / 2f;
+        float halfSize = enemy.getSize() / 2f;
         float ex = enemy.getPosition().x;
         float ey = enemy.getPosition().y;
         float dx = position.x - ex;
