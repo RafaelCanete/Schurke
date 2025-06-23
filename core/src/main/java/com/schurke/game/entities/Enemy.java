@@ -20,18 +20,30 @@ public class Enemy {
     private boolean isHit = false;
     private float hitTimer = 0f;
     private static final float HIT_DURATION = 0.2f;
-    private static Texture sharedTexture;
+    private static Texture sharedBatTexture;
+    private static Texture sharedSpiderTexture;
+    private EnemyType type;
 
-    public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
+    public enum EnemyType { BAT, SPIDER }
+
+    public Enemy(Vector2 position, EnemyType type, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
         this.health = health;
         this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
-        if (sharedTexture == null) {
-            sharedTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
+        this.type = type;
+        if (type == EnemyType.BAT) {
+            if (sharedBatTexture == null) {
+                sharedBatTexture = new Texture(Gdx.files.internal("characters/new/enemy_bat.png"));
+            }
+            this.texture = sharedBatTexture;
+        } else {
+            if (sharedSpiderTexture == null) {
+                sharedSpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
+            }
+            this.texture = sharedSpiderTexture;
         }
-        this.texture = sharedTexture;
     }
 
     public void hit() {
@@ -145,9 +157,13 @@ public class Enemy {
     }
 
     public void dispose() {
-        if (sharedTexture != null) {
-            sharedTexture.dispose();
-            sharedTexture = null;
+        if (sharedBatTexture != null) {
+            sharedBatTexture.dispose();
+            sharedBatTexture = null;
+        }
+        if (sharedSpiderTexture != null) {
+            sharedSpiderTexture.dispose();
+            sharedSpiderTexture = null;
         }
     }
 }

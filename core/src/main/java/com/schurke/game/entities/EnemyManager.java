@@ -26,9 +26,16 @@ public class EnemyManager {
     }
 
     public void spawnEnemy(int count, Player player, OrthographicCamera camera) {
+        int level = player.getLevel();
         for (int i = 0; i < count; i++) {
             Vector2 spawnPosition = getRandomPositionAtViewportEdge(camera);
-            enemies.add(new Enemy(spawnPosition, 100f, 1f, 20f));
+            Enemy.EnemyType type;
+            if (level < 3) {
+                type = Enemy.EnemyType.BAT;
+            } else {
+                type = random.nextBoolean() ? Enemy.EnemyType.BAT : Enemy.EnemyType.SPIDER;
+            }
+            enemies.add(new Enemy(spawnPosition, type, 100f, 1f, 20f));
         }
     }
 
