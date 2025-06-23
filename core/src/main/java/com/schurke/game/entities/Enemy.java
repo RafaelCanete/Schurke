@@ -1,48 +1,120 @@
 package com.schurke.game.entities;
 
 import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class Enemy {
     private Vector2 position;
-    private static float size = 20f;
+    private float size;
     private float damageCooldown;
     private float health;
     private float maxHealth;
     private float attackDamage;
+    private Texture texture;
+    private int scoreValue;
+    private boolean isHit = false;
+    private float hitTimer = 0f;
+    private static final float HIT_DURATION = 0.2f;
+    private static Texture sharedBatTexture;
+    private static Texture sharedBabySpiderTexture;
+    private static Texture sharedSpiderTexture;
+    private EnemyType type;
+    private float speed;
 
-    public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
+    public enum EnemyType { BAT, BABY_SPIDER, SPIDER }
+
+    public Enemy(Vector2 position, EnemyType type, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
-        this.health = health;
-        this.maxHealth = health;
+        this.type = type;
+        if (type == EnemyType.BAT) {
+            if (sharedBatTexture == null) {
+                sharedBatTexture = new Texture(Gdx.files.internal("characters/new/enemy_bat.png"));
+            }
+            this.texture = sharedBatTexture;
+            this.scoreValue = 150;
+            this.size = 60f;
+            this.health = 100f;
+            this.maxHealth = 100f;
+            this.speed = 150f;
+            this.attackDamage = 20f;
+        } else if (type == EnemyType.BABY_SPIDER) {
+            if (sharedBabySpiderTexture == null) {
+                sharedBabySpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_baby_spider.png"));
+            }
+            this.texture = sharedBabySpiderTexture;
+            this.scoreValue = 100;
+            this.size = 50f;
+            this.health = 50f;
+            this.maxHealth = 50f;
+            this.speed = 250f;
+            this.attackDamage = 10f;
+        } else {
+            if (sharedSpiderTexture == null) {
+                sharedSpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
+            }
+            this.texture = sharedSpiderTexture;
+            this.scoreValue = 250;
+            this.size = 90f;
+            this.health = 150f;
+            this.maxHealth = 150f;
+            this.speed = 110f;
+            this.attackDamage = 35f;
+        }
         this.damageCooldown = damageCooldown;
-        this.attackDamage = attackDamage;
     }
 
-    public void render(ShapeRenderer shape) {
-        if (position != null) {
-            // Render enemy body
-            shape.setColor(1, 0, 0, 1);
-            shape.rect(position.x, position.y, size, size);
+    public void hit() {
+        isHit = true;
+        hitTimer = HIT_DURATION;
+    }
 
-            // Render health bar
-            float healthBarWidth = size;
-            float healthBarHeight = 4f;
-            float healthPercentage = health / maxHealth;
-
-            // Health bar background
-            shape.setColor(0.3f, 0.3f, 0.3f, 1f);
-            shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
-
-            // Health bar fill - color transitions from green to red based on health
-            float r = 1 - healthPercentage;
-            float g = healthPercentage;
-            shape.setColor(r, g, 0, 1f);
-            shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
+    public void updateHitAnimation(float delta) {
+        if (isHit) {
+            hitTimer -= delta;
+            if (hitTimer <= 0f) {
+                isHit = false;
+            }
         }
+    }
+
+    public boolean isHit() {
+        return isHit;
+    }
+
+    public void render(SpriteBatch batch, Player player) {
+        float dx = player.getPosition().x - position.x;
+        float dy = player.getPosition().y - position.y;
+        float rotation = (float)Math.toDegrees(Math.atan2(dy, dx)) - 90f;
+        batch.draw(
+            texture,
+            position.x, position.y,
+            size / 2, size / 2,
+            size, size,
+            1f, 1f,
+            rotation,
+            0, 0,
+            texture.getWidth(), texture.getHeight(),
+            false, false
+        );
+    }
+
+    public void renderHealthBar(ShapeRenderer shape) {
+        float healthBarWidth = size;
+        float healthBarHeight = 4f;
+        float healthPercentage = health / maxHealth;
+
+        shape.setColor(0.3f, 0.3f, 0.3f, 1f);
+        shape.rect(position.x, position.y + size + 5f, healthBarWidth, healthBarHeight);
+
+        float r = 1 - healthPercentage;
+        float g = healthPercentage;
+        shape.setColor(r, g, 0, 1f);
+        shape.rect(position.x, position.y + size + 5f, healthBarWidth * healthPercentage, healthBarHeight);
     }
 
     public Vector2 getPosition() {
@@ -52,7 +124,6 @@ public class Enemy {
     public void update(ArrayList<Enemy> allEnemies, Player player) {
         Vector2 playerPosition = player.getPosition();
         Vector2 toPlayer = new Vector2(playerPosition).sub(position).nor();
-        float speed = 100f;
         float delta = Gdx.graphics.getDeltaTime();
         damageCooldown -= delta;
 
@@ -79,7 +150,6 @@ public class Enemy {
                 player.takeDamage(this.attackDamage);
                 damageCooldown = 1.0f;
             }
-            return;
         }
     }
 
@@ -99,8 +169,30 @@ public class Enemy {
         return maxHealth;
     }
 
-    public static float getSize() {
+    public int getScoreValue() {
+        return scoreValue;
+    }
+
+    public float getSize() {
         return size;
     }
 
+    public void dispose() {
+        if (sharedBatTexture != null) {
+            sharedBatTexture.dispose();
+            sharedBatTexture = null;
+        }
+        if (sharedBabySpiderTexture != null) {
+            sharedBabySpiderTexture.dispose();
+            sharedBabySpiderTexture = null;
+        }
+        if (sharedSpiderTexture != null) {
+            sharedSpiderTexture.dispose();
+            sharedSpiderTexture = null;
+        }
+    }
+
+    public EnemyType getType() {
+        return type;
+    }
 }

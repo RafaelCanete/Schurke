@@ -28,9 +28,6 @@ public class CombatController {
         weapon.update(delta);
         shootCooldown -= delta;
 
-        if (weapon.isReloading())
-            return;
-
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && shootCooldown <= 0f && weapon.hasAmmo()) {
             Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(mousePos);
@@ -40,10 +37,6 @@ public class CombatController {
             bullets.addAll(newBullets);
 
             shootCooldown = weapon.getCooldown();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R) || !weapon.hasAmmo()) {
-            weapon.reload();
         }
     }
 }
