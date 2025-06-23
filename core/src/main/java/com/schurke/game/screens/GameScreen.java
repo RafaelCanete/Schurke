@@ -234,11 +234,20 @@ public class GameScreen extends BaseGameScreen {
         player.render(batch);
         enemyManager.render(batch, player);
         powerUpsManager.render(batch);
-        portalManager.render(batch, shape);
+        enemyManager.renderPopups(batch);
+        // Bullet rendering (innerhalb des SpriteBatch-Blocks)
+        bulletManager.updateAndRender(0, shape, batch); // delta = 0 für renderWithoutUpdate
         batch.end();
 
+        // Blood effects
         shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderBloodEffects(shape);
         enemyManager.renderHealthBars(shape);
+        shape.end();
+
+        // Portal rendering (separat)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        portalManager.render(batch, shape);
         shape.end();
 
         uiViewport.apply();
@@ -267,19 +276,15 @@ public class GameScreen extends BaseGameScreen {
         if (portalManager.shouldShowPortalMessage()) {
             String portalText = "Ein Portal ist im " + portalManager.getPortalLocation() + " erschienen!";
             
-            // Pulsierende Animation
-            float time = System.currentTimeMillis() / 1000f;
-            float pulse = 0.5f + 0.5f * (float)Math.sin(time * 3f); // 3 Hz Pulsieren
+            // Statische lila Farbe
+            font.setColor(0.8f, 0.2f, 1.0f, 1f);
             
-            // Coole Farbe (Lila mit Pulsieren)
-            float r = 0.8f + 0.2f * pulse;
-            float g = 0.2f + 0.3f * pulse;
-            float b = 1.0f;
-            font.setColor(r, g, b, 1f);
-            
-            // Position unter dem Level (Level ist bei y = height - 40)
+            // Bessere Zentrierung in X-Richtung mit GlyphLayout
+            com.badlogic.gdx.graphics.g2d.GlyphLayout layout = new com.badlogic.gdx.graphics.g2d.GlyphLayout();
+            layout.setText(font, portalText);
+            float x = (Gdx.graphics.getWidth() - layout.width) / 2f;
             float y = Gdx.graphics.getHeight() - 80;
-            font.draw(hudBatch, portalText, Gdx.graphics.getWidth() / 2 - 150, y);
+            font.draw(hudBatch, portalText, x, y);
             
             // Farbe zurücksetzen
             font.setColor(1f, 1f, 1f, 1f);
