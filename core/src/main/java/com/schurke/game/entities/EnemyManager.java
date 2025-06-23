@@ -94,9 +94,9 @@ public class EnemyManager {
     }
 
     // ✅ Draw only enemy textures
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, Player player) {
         for (Enemy enemy : enemies) {
-            enemy.render(batch);
+            enemy.render(batch, player);
         }
     }
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class Enemy {
     private Vector2 position;
@@ -19,6 +20,7 @@ public class Enemy {
     private boolean isHit = false;
     private float hitTimer = 0f;
     private static final float HIT_DURATION = 0.2f;
+    private static Texture sharedTexture;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
@@ -26,7 +28,10 @@ public class Enemy {
         this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
-        this.texture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
+        if (sharedTexture == null) {
+            sharedTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
+        }
+        this.texture = sharedTexture;
     }
 
     public void hit() {
@@ -47,14 +52,21 @@ public class Enemy {
         return isHit;
     }
 
-    public void render(SpriteBatch batch) {
-        if (position != null && texture != null) {
-            if (isHit) {
-                batch.setColor(1f, 0.3f, 0.3f, 1f);
-            }
-            batch.draw(texture, position.x, position.y, size, size);
-            batch.setColor(1f, 1f, 1f, 1f);
-        }
+    public void render(SpriteBatch batch, Player player) {
+        float dx = player.getPosition().x - position.x;
+        float dy = player.getPosition().y - position.y;
+        float rotation = (float)Math.toDegrees(Math.atan2(dy, dx)) - 90f;
+        batch.draw(
+            texture,
+            position.x, position.y,
+            size / 2, size / 2,
+            size, size,
+            1f, 1f,
+            rotation,
+            0, 0,
+            texture.getWidth(), texture.getHeight(),
+            false, false
+        );
     }
 
     public void renderHealthBar(ShapeRenderer shape) {
@@ -133,6 +145,9 @@ public class Enemy {
     }
 
     public void dispose() {
-        if (texture != null) texture.dispose();
+        if (sharedTexture != null) {
+            sharedTexture.dispose();
+            sharedTexture = null;
+        }
     }
 }

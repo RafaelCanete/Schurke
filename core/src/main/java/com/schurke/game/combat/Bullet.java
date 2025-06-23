@@ -31,7 +31,14 @@ public class Bullet {
     }
 
     public boolean collidesWith(Enemy enemy) {
-        return enemy.getPosition().dst(position) < (Enemy.getSize() / 2f);
+        float halfSize = Enemy.getSize() / 2f;
+        float ex = enemy.getPosition().x;
+        float ey = enemy.getPosition().y;
+        float dx = position.x - ex;
+        float dy = position.y - ey;
+        float distanceSquared = dx * dx + dy * dy;
+        float combinedRadius = halfSize + size;
+        return distanceSquared <= combinedRadius * combinedRadius;
     }
 
     public float getDamage() {

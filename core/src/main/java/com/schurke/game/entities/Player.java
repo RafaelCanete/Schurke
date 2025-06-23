@@ -33,6 +33,9 @@ public class Player {
 
     private OrthographicCamera camera;
     private float lastAngle;
+    private float rotation = 0f;
+
+    private static final Vector3 tmpMouse = new Vector3();
 
     public Player(Vector2 startPosition, float health, float maxHealth, OrthographicCamera camera) {
         this.position = new Vector2(startPosition);
@@ -40,7 +43,7 @@ public class Player {
         this.maxHealth = maxHealth;
         this.camera = camera;
         this.playerTexture = new Texture(Gdx.files.internal("characters/new/player.png"));
-        this.size = 70f;
+        this.size = 170f;
         this.isWalking = false;
         this.animationTimer = 0f;
 
@@ -104,7 +107,26 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(playerTexture, position.x - size / 2, position.y - size / 2, size, size);
+        // Berechne den Winkel zur Maus
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY();
+        tmpMouse.set(mouseX, mouseY, 0);
+        camera.unproject(tmpMouse);
+        float dx = tmpMouse.x - position.x;
+        float dy = tmpMouse.y - position.y;
+        rotation = (float)Math.toDegrees(Math.atan2(dy, dx)) - 90f;
+        // Zeichne die Textur rotiert um die Mitte
+        batch.draw(
+            playerTexture,
+            position.x - size / 2, position.y - size / 2,
+            size / 2, size / 2, // Origin (Mitte)
+            size, size,
+            1f, 1f, // scale
+            rotation,
+            0, 0,
+            playerTexture.getWidth(), playerTexture.getHeight(),
+            false, false
+        );
     }
 
     public void takeDamage(float amount) {

@@ -96,6 +96,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // Clamp delta to avoid stutter on lag spikes
+        delta = Math.min(delta, 1f / 30f);
+
         if (gameOver) {
             deathTimer += delta;
             if (deathTimer >= DEATH_DELAY) {
@@ -139,7 +142,7 @@ public class GameScreen implements Screen {
 
         batch.begin();
         player.render(batch);
-        enemyManager.render(batch);
+        enemyManager.render(batch, player);
         powerUpsManager.render(batch);
         batch.end();
 
@@ -191,7 +194,7 @@ public class GameScreen implements Screen {
         batch.draw(image, 140, 210);
         map.render(batch);
         player.render(batch);
-        enemyManager.render(batch);
+        enemyManager.render(batch, player);
         powerUpsManager.render(batch);
         batch.end();
 
