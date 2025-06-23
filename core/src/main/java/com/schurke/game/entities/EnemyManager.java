@@ -9,16 +9,20 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.map.TileMap;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.Gdx;
+import com.schurke.game.effects.BloodEffectManager;
 
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
     private Random random;
     private TileMap map;
+    private BloodEffectManager bloodEffectManager;
 
     public EnemyManager(TileMap map) {
         this.map = map;
         this.enemies = new ArrayList<>();
         this.random = new Random();
+        this.bloodEffectManager = new BloodEffectManager();
     }
 
     public void spawnEnemy(int count, Player player, OrthographicCamera camera) {
@@ -73,12 +77,19 @@ public class EnemyManager {
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
             enemy.update(enemies, player);
+            enemy.updateHitAnimation(Gdx.graphics.getDeltaTime());
             if (enemy.isDead()) {
                 player.addXP(enemy.getScoreValue());
                 player.addScore(enemy.getScoreValue());
                 iterator.remove();
             }
         }
+        bloodEffectManager.update(Gdx.graphics.getDeltaTime());
+    }
+
+    public void hitEnemy(Enemy enemy) {
+        enemy.hit();
+        bloodEffectManager.createBloodEffect(enemy.getPosition());
     }
 
     // ✅ Draw only enemy textures
@@ -93,6 +104,11 @@ public class EnemyManager {
         for (Enemy enemy : enemies) {
             enemy.renderHealthBar(shape);
         }
+        bloodEffectManager.render(shape);
+    }
+
+    public void renderBloodEffects(ShapeRenderer shape) {
+        bloodEffectManager.render(shape);
     }
 
     public boolean hasNoEnemies() {

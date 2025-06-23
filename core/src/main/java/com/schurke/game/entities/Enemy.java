@@ -16,6 +16,9 @@ public class Enemy {
     private float attackDamage;
     private Texture texture;
     private int scoreValue = 10;
+    private boolean isHit = false;
+    private float hitTimer = 0f;
+    private static final float HIT_DURATION = 0.2f;
 
     public Enemy(Vector2 position, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
@@ -26,14 +29,34 @@ public class Enemy {
         this.texture = new Texture(Gdx.files.internal("characters/enemy.png"));
     }
 
-  
-    public void render(SpriteBatch batch) {
-        if (position != null && texture != null) {
-            batch.draw(texture, position.x, position.y, size, size);
+    public void hit() {
+        isHit = true;
+        hitTimer = HIT_DURATION;
+    }
+
+    public void updateHitAnimation(float delta) {
+        if (isHit) {
+            hitTimer -= delta;
+            if (hitTimer <= 0f) {
+                isHit = false;
+            }
         }
     }
 
-  
+    public boolean isHit() {
+        return isHit;
+    }
+
+    public void render(SpriteBatch batch) {
+        if (position != null && texture != null) {
+            if (isHit) {
+                batch.setColor(1f, 0.3f, 0.3f, 1f);
+            }
+            batch.draw(texture, position.x, position.y, size, size);
+            batch.setColor(1f, 1f, 1f, 1f);
+        }
+    }
+
     public void renderHealthBar(ShapeRenderer shape) {
         float healthBarWidth = size;
         float healthBarHeight = 4f;

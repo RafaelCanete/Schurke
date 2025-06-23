@@ -130,10 +130,23 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(image, 140, 210);
         map.render(batch);
+        batch.end();
+
+        // Draw blood stains and particles (under player/enemies)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderBloodEffects(shape);
+        shape.end();
+
+        batch.begin();
         player.render(batch);
         enemyManager.render(batch);
         powerUpsManager.render(batch);
         batch.end();
+
+        // Draw health bars (over everything)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderHealthBars(shape);
+        shape.end();
 
         // Update game logic and draw health bars
         shape.begin(ShapeRenderer.ShapeType.Filled);
@@ -147,7 +160,6 @@ public class GameScreen implements Screen {
             // Power-up logic now depends on player level
             powerUpsManager.update(delta, player);
         }
-        enemyManager.renderHealthBars(shape);
         shape.end();
 
         // HUD
