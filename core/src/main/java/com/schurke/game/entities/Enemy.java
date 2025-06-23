@@ -191,4 +191,8 @@ public class Enemy {
             sharedSpiderTexture = null;
         }
     }
+
+    public EnemyType getType() {
+        return type;
+    }
 }

@@ -40,9 +40,10 @@ public class EnemyManager {
             allowedTypes.add(Enemy.EnemyType.BAT);
             allowedTypes.add(Enemy.EnemyType.BABY_SPIDER);
         } else {
-            allowedTypes.add(Enemy.EnemyType.BAT);
-            allowedTypes.add(Enemy.EnemyType.BABY_SPIDER);
-            allowedTypes.add(Enemy.EnemyType.SPIDER);
+            // Ab Level 5: 40% BAT, 40% BABY_SPIDER, 20% SPIDER
+            for (int i = 0; i < 4; i++) allowedTypes.add(Enemy.EnemyType.BAT);
+            for (int i = 0; i < 4; i++) allowedTypes.add(Enemy.EnemyType.BABY_SPIDER);
+            for (int i = 0; i < 2; i++) allowedTypes.add(Enemy.EnemyType.SPIDER);
         }
         for (int i = 0; i < count; i++) {
             Vector2 spawnPosition = getRandomPositionAtViewportEdge(camera);
@@ -93,6 +94,7 @@ public class EnemyManager {
 
     public void update(Player player) {
         Iterator<Enemy> iterator = enemies.iterator();
+        java.util.List<Enemy> toAdd = new ArrayList<>();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
             enemy.update(enemies, player);
@@ -102,9 +104,17 @@ public class EnemyManager {
                 player.addScore(enemy.getScoreValue());
                 bloodEffectManager.addBloodStain(enemy.getPosition());
                 scorePopups.add(new ScorePopup(enemy.getPosition().cpy(), "+" + enemy.getScoreValue()));
+                // Ab Level 10: Große Spinne spawnt 3 Baby-Spinnen
+                if (enemy.getType() == Enemy.EnemyType.SPIDER && player.getLevel() >= 10) {
+                    for (int j = 0; j < 3; j++) {
+                        Vector2 offset = new Vector2((random.nextFloat()-0.5f)*30f, (random.nextFloat()-0.5f)*30f);
+                        toAdd.add(new Enemy(enemy.getPosition().cpy().add(offset), Enemy.EnemyType.BABY_SPIDER, 100f, 1f, 20f));
+                    }
+                }
                 iterator.remove();
             }
         }
+        enemies.addAll(toAdd);
         bloodEffectManager.update(Gdx.graphics.getDeltaTime());
         // Update Popups
         Iterator<ScorePopup> popupIt = scorePopups.iterator();
