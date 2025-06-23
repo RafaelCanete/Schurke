@@ -104,7 +104,6 @@ public class EnemyManager {
         for (Enemy enemy : enemies) {
             enemy.renderHealthBar(shape);
         }
-        bloodEffectManager.render(shape);
     }
 
     public void renderBloodEffects(ShapeRenderer shape) {
