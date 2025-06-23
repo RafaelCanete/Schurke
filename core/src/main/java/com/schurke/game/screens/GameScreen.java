@@ -30,6 +30,7 @@ import com.schurke.game.ui.LevelBar;
 import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
+import com.badlogic.gdx.graphics.Cursor;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -58,6 +59,8 @@ public class GameScreen implements Screen {
 
     // PowerUps
     private PowerUpsManager powerUpsManager;
+
+    private Texture cursorTexture;
 
     public GameScreen(Main game) {
         this.game = game;
@@ -92,6 +95,8 @@ public class GameScreen implements Screen {
         this.roundManager = new RoundManager(enemyManager);
 
         this.powerUpsManager = new PowerUpsManager(map);
+
+        this.cursorTexture = new Texture(Gdx.files.internal("cursor/cursor_aim.png"));
     }
 
     @Override
@@ -179,6 +184,18 @@ public class GameScreen implements Screen {
         // Render the new level bar
         levelBar.render(shape, hudBatch);
 
+        // Cursor-Bild im UI-Layer (Screen-Koordinaten) zeichnen
+        batch.setProjectionMatrix(new com.badlogic.gdx.math.Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        batch.begin();
+        int mx = Gdx.input.getX();
+        int my = Gdx.graphics.getHeight() - Gdx.input.getY();
+        float cx = mx - cursorTexture.getWidth() / 2f;
+        float cy = my - cursorTexture.getHeight() / 2f;
+        batch.draw(cursorTexture, cx, cy);
+        batch.end();
+        // Batch-Projektion wieder auf Kamera zurücksetzen
+        batch.setProjectionMatrix(camera.combined);
+
         if (player.isDead() && !gameOver) {
             gameOver = true;
             deathTimer = 0;
@@ -231,11 +248,15 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(null);
+        // Systemcursor verstecken
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
     }
 
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+        // Cursor zurücksetzen
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
     }
 
     @Override
@@ -260,6 +281,9 @@ public class GameScreen implements Screen {
             if (hudBatch != null) hudBatch.dispose();
             if (player != null) player.dispose();
             if (powerUpsManager != null) powerUpsManager.dispose();
+            if (cursorTexture != null) cursorTexture.dispose();
+            // Cursor zurücksetzen
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
