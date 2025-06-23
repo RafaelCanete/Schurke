@@ -144,6 +144,7 @@ public class GameScreen implements Screen {
         player.render(batch);
         enemyManager.render(batch, player);
         powerUpsManager.render(batch);
+        enemyManager.renderPopups(batch);
         batch.end();
 
         // Draw health bars (over everything)

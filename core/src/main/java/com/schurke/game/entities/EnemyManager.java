@@ -11,18 +11,24 @@ import com.schurke.game.map.TileMap;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Gdx;
 import com.schurke.game.effects.BloodEffectManager;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Color;
 
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
     private Random random;
     private TileMap map;
     private BloodEffectManager bloodEffectManager;
+    private ArrayList<ScorePopup> scorePopups = new ArrayList<>();
+    private BitmapFont popupFont;
 
     public EnemyManager(TileMap map) {
         this.map = map;
         this.enemies = new ArrayList<>();
         this.random = new Random();
         this.bloodEffectManager = new BloodEffectManager();
+        this.popupFont = new BitmapFont();
+        this.popupFont.getData().setScale(2.2f, 2.2f);
     }
 
     public void spawnEnemy(int count, Player player, OrthographicCamera camera) {
@@ -95,10 +101,18 @@ public class EnemyManager {
                 player.addXP(enemy.getScoreValue());
                 player.addScore(enemy.getScoreValue());
                 bloodEffectManager.addBloodStain(enemy.getPosition());
+                scorePopups.add(new ScorePopup(enemy.getPosition().cpy(), "+" + enemy.getScoreValue()));
                 iterator.remove();
             }
         }
         bloodEffectManager.update(Gdx.graphics.getDeltaTime());
+        // Update Popups
+        Iterator<ScorePopup> popupIt = scorePopups.iterator();
+        while (popupIt.hasNext()) {
+            ScorePopup popup = popupIt.next();
+            popup.update(Gdx.graphics.getDeltaTime());
+            if (popup.isDead()) popupIt.remove();
+        }
     }
 
     public void hitEnemy(Enemy enemy) {
@@ -126,5 +140,11 @@ public class EnemyManager {
 
     public boolean hasNoEnemies() {
         return enemies.isEmpty();
+    }
+
+    public void renderPopups(SpriteBatch batch) {
+        for (ScorePopup popup : scorePopups) {
+            popup.render(batch, popupFont);
+        }
     }
 }
