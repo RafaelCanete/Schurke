@@ -3,6 +3,7 @@ package com.schurke.game.effects;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.Color;
 
 public class BloodParticle {
     private Vector2 position;
@@ -35,7 +36,9 @@ public class BloodParticle {
 
     public void render(ShapeRenderer shape) {
         if (alpha > 0) {
-            shape.setColor(0.8f, 0.1f, 0.1f, alpha);
+            Color c = new Color(BloodEffectManager.BLOOD_COLOR);
+            c.a = alpha;
+            shape.setColor(c);
             shape.circle(position.x, position.y, size);
         }
     }

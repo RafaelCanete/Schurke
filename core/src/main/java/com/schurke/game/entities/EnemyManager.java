@@ -81,6 +81,7 @@ public class EnemyManager {
             if (enemy.isDead()) {
                 player.addXP(enemy.getScoreValue());
                 player.addScore(enemy.getScoreValue());
+                bloodEffectManager.addBloodStain(enemy.getPosition());
                 iterator.remove();
             }
         }
