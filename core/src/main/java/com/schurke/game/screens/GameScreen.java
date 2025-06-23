@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.schurke.game.Main;
 import com.schurke.game.combat.Bullet;
 import com.schurke.game.combat.BulletManager;
@@ -67,7 +68,7 @@ public class GameScreen implements Screen {
 
         this.map = new TileMap();
         this.camera = new OrthographicCamera();
-        this.viewport = new ExtendViewport(map.getTileSize() * map.getMapWidth(), map.getTileSize() * map.getMapHeight(), camera);
+        this.viewport = new FitViewport(1280, 960, camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
         this.player = new Player(map.getCenter(), 100f, 100f, camera);
@@ -109,7 +110,16 @@ public class GameScreen implements Screen {
         }
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        camera.position.set(player.getPosition().x, player.getPosition().y, 0);
+        // Camera follows player, but clamp to map bounds
+        float camHalfWidth = camera.viewportWidth / 2f;
+        float camHalfHeight = camera.viewportHeight / 2f;
+        float mapPixelWidth = map.getMapWidth() * map.getTileSize();
+        float mapPixelHeight = map.getMapHeight() * map.getTileSize();
+        float camX = player.getPosition().x;
+        float camY = player.getPosition().y;
+        camX = Math.max(camHalfWidth, Math.min(camX, mapPixelWidth - camHalfWidth));
+        camY = Math.max(camHalfHeight, Math.min(camY, mapPixelHeight - camHalfHeight));
+        camera.position.set(camX, camY, 0);
         camera.update();
 
         viewport.apply();
@@ -186,9 +196,7 @@ public class GameScreen implements Screen {
 
     private void renderHUD() {
         shape.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        playerHealthBar.render(shape);
-        shape.end();
+        // No health bar here! Only in UI overlay.
 
         hudBatch.begin();
         if (GameConfig.isUnlimitedAmmo()) {

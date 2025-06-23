@@ -16,7 +16,7 @@ public class Player {
     private float maxHealth;
 
     private int score = 0;
-    private int level = 3;
+    private int level = 1;
     private int xp = 0;
     private int xpForNextLevel = 200;
 
