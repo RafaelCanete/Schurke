@@ -26,7 +26,7 @@ public class Enemy {
         this.maxHealth = health;
         this.damageCooldown = damageCooldown;
         this.attackDamage = attackDamage;
-        this.texture = new Texture(Gdx.files.internal("characters/enemy.png"));
+        this.texture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
     }
 
     public void hit() {

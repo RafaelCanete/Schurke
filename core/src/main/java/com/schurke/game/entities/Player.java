@@ -24,13 +24,7 @@ public class Player {
     private float invincibleTimer;
 
     // Direction textures
-    private Texture frontTexture;
-    private Texture backTexture;
-    private Texture leftTexture;
-    private Texture rightTexture;
-    private Texture leftWalkingTexture;
-    private Texture rightWalkingTexture;
-    private Texture currentTexture;
+    private Texture playerTexture;
     private boolean isWalking;
     private float animationTimer;
 
@@ -40,26 +34,18 @@ public class Player {
     private OrthographicCamera camera;
     private float lastAngle;
 
-    public Player(Vector2 startPosition, float health, float size, OrthographicCamera camera) {
+    public Player(Vector2 startPosition, float health, float maxHealth, OrthographicCamera camera) {
         this.position = new Vector2(startPosition);
-        this.maxHealth = health;
         this.health = health;
-        this.size = size;
+        this.maxHealth = maxHealth;
         this.camera = camera;
+        this.playerTexture = new Texture(Gdx.files.internal("characters/new/player.png"));
+        this.size = 70f;
         this.isWalking = false;
         this.animationTimer = 0f;
 
         this.invincible = false;
         this.invincibleTimer = 0f;
-
-        frontTexture = new Texture(Gdx.files.internal("characters/front.png"));
-        backTexture = new Texture(Gdx.files.internal("characters/back.png"));
-        leftTexture = new Texture(Gdx.files.internal("characters/left.png"));
-        rightTexture = new Texture(Gdx.files.internal("characters/right.png"));
-        leftWalkingTexture = new Texture(Gdx.files.internal("characters/left_walking.png"));
-        rightWalkingTexture = new Texture(Gdx.files.internal("characters/right_walking.png"));
-
-        currentTexture = frontTexture;
     }
 
     public void update(TileMap map) {
@@ -113,25 +99,12 @@ public class Player {
             animationTimer += Gdx.graphics.getDeltaTime();
             if (animationTimer >= ANIMATION_FRAME_DURATION) {
                 animationTimer = 0;
-                currentTexture = (angle >= -45 && angle < 45)
-                        ? (currentTexture == rightTexture ? rightWalkingTexture : rightTexture)
-                        : (currentTexture == leftTexture ? leftWalkingTexture : leftTexture);
             }
-        } else {
-            if (angle >= -45 && angle < 45) currentTexture = rightTexture;
-            else if (angle >= 45 && angle < 135) currentTexture = backTexture;
-            else if (angle >= 135 || angle < -135) currentTexture = leftTexture;
-            else currentTexture = frontTexture;
-
-            animationTimer = 0;
         }
     }
 
     public void render(SpriteBatch batch) {
-        // Optional flashing when invincible (can be toggled every few frames)
-        // if (invincible && ((int)(invincibleTimer * 10) % 2 == 0)) return;
-
-        batch.draw(currentTexture, position.x - size / 2, position.y - size / 2, size, size);
+        batch.draw(playerTexture, position.x - size / 2, position.y - size / 2, size, size);
     }
 
     public void takeDamage(float amount) {
@@ -182,12 +155,7 @@ public class Player {
     }
 
     public void dispose() {
-        frontTexture.dispose();
-        backTexture.dispose();
-        leftTexture.dispose();
-        rightTexture.dispose();
-        leftWalkingTexture.dispose();
-        rightWalkingTexture.dispose();
+        playerTexture.dispose();
     }
 
     public void addXP(int amount) {
