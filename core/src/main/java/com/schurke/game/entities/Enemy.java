@@ -24,15 +24,12 @@ public class Enemy {
     private static Texture sharedBabySpiderTexture;
     private static Texture sharedSpiderTexture;
     private EnemyType type;
+    private float speed;
 
     public enum EnemyType { BAT, BABY_SPIDER, SPIDER }
 
     public Enemy(Vector2 position, EnemyType type, float health, float damageCooldown, float attackDamage) {
         this.position = new Vector2(position);
-        this.health = health;
-        this.maxHealth = health;
-        this.damageCooldown = damageCooldown;
-        this.attackDamage = attackDamage;
         this.type = type;
         if (type == EnemyType.BAT) {
             if (sharedBatTexture == null) {
@@ -41,6 +38,10 @@ public class Enemy {
             this.texture = sharedBatTexture;
             this.scoreValue = 150;
             this.size = 60f;
+            this.health = 100f;
+            this.maxHealth = 100f;
+            this.speed = 150f;
+            this.attackDamage = 20f;
         } else if (type == EnemyType.BABY_SPIDER) {
             if (sharedBabySpiderTexture == null) {
                 sharedBabySpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_baby_spider.png"));
@@ -48,6 +49,10 @@ public class Enemy {
             this.texture = sharedBabySpiderTexture;
             this.scoreValue = 100;
             this.size = 50f;
+            this.health = 50f;
+            this.maxHealth = 50f;
+            this.speed = 250f;
+            this.attackDamage = 10f;
         } else {
             if (sharedSpiderTexture == null) {
                 sharedSpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_spider.png"));
@@ -55,7 +60,12 @@ public class Enemy {
             this.texture = sharedSpiderTexture;
             this.scoreValue = 250;
             this.size = 90f;
+            this.health = 150f;
+            this.maxHealth = 150f;
+            this.speed = 110f;
+            this.attackDamage = 35f;
         }
+        this.damageCooldown = damageCooldown;
     }
 
     public void hit() {
@@ -114,7 +124,6 @@ public class Enemy {
     public void update(ArrayList<Enemy> allEnemies, Player player) {
         Vector2 playerPosition = player.getPosition();
         Vector2 toPlayer = new Vector2(playerPosition).sub(position).nor();
-        float speed = 150f;
         float delta = Gdx.graphics.getDeltaTime();
         damageCooldown -= delta;
 
