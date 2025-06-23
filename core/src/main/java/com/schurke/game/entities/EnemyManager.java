@@ -27,14 +27,20 @@ public class EnemyManager {
 
     public void spawnEnemy(int count, Player player, OrthographicCamera camera) {
         int level = player.getLevel();
+        ArrayList<Enemy.EnemyType> allowedTypes = new ArrayList<>();
+        if (level < 3) {
+            allowedTypes.add(Enemy.EnemyType.BAT);
+        } else if (level < 5) {
+            allowedTypes.add(Enemy.EnemyType.BAT);
+            allowedTypes.add(Enemy.EnemyType.BABY_SPIDER);
+        } else {
+            allowedTypes.add(Enemy.EnemyType.BAT);
+            allowedTypes.add(Enemy.EnemyType.BABY_SPIDER);
+            allowedTypes.add(Enemy.EnemyType.SPIDER);
+        }
         for (int i = 0; i < count; i++) {
             Vector2 spawnPosition = getRandomPositionAtViewportEdge(camera);
-            Enemy.EnemyType type;
-            if (level < 3) {
-                type = Enemy.EnemyType.BAT;
-            } else {
-                type = random.nextBoolean() ? Enemy.EnemyType.BAT : Enemy.EnemyType.SPIDER;
-            }
+            Enemy.EnemyType type = allowedTypes.get(random.nextInt(allowedTypes.size()));
             enemies.add(new Enemy(spawnPosition, type, 100f, 1f, 20f));
         }
     }
