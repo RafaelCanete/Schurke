@@ -202,11 +202,7 @@ public class GameScreen implements Screen {
         if (GameConfig.isUnlimitedAmmo()) {
             font.draw(hudBatch, "Ammo: ∞", 20, 40);
         } else {
-            font.draw(hudBatch, "Ammo: " + currentWeapon.getCurrentAmmo() + "/" + currentWeapon.getReserveAmmo(), 20, 40);
-        }
-
-        if (currentWeapon.isReloading()) {
-            font.draw(hudBatch, "Reloading...", 20, 80);
+            font.draw(hudBatch, "Ammo: -", 20, 40);
         }
 
         if (player.isInvincible()) {

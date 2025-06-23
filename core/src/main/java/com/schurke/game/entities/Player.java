@@ -64,7 +64,7 @@ public class Player {
 
     public void update(TileMap map) {
         float delta = Gdx.graphics.getDeltaTime();
-        float speed = 200f;
+        float speed = 300f;
 
         float xNew = position.x;
         float yNew = position.y;

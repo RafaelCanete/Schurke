@@ -8,13 +8,13 @@ import java.util.Random;
 public class RoundManager {
     private EnemyManager enemyManager;
     private float spawnTimer = 0f;
-    private float currentSpawnInterval = 2.5f; // Start with 2.5 seconds between spawns
+    private float currentSpawnInterval = 1.8f; // Start with 1.8 seconds between spawns
     private Random random;
     
     // Scaling parameters
-    private static final float BASE_SPAWN_INTERVAL = 2.5f;
-    private static final float INTERVAL_DECREASE_PER_LEVEL = 0.04f; // Slower decrease per level
-    private static final float MIN_SPAWN_INTERVAL = 0.5f; // The fastest spawn rate possible
+    private static final float BASE_SPAWN_INTERVAL = 1.8f;
+    private static final float INTERVAL_DECREASE_PER_LEVEL = 0.06f; // Faster decrease per level
+    private static final float MIN_SPAWN_INTERVAL = 0.3f; // Even faster minimum spawn rate
 
     public RoundManager(EnemyManager enemyManager) {
         this.enemyManager = enemyManager;

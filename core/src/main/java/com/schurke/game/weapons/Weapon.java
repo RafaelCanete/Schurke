@@ -14,16 +14,8 @@ public interface Weapon {
 
     int getAmmo();
 
-    int getCurrentAmmo();
-
-    int getReserveAmmo();
-
-    void reload();
-
     void dispose();
 
     void update(float delta);
-
-    boolean isReloading();
 
 }

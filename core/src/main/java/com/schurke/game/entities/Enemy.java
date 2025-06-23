@@ -55,7 +55,7 @@ public class Enemy {
     public void update(ArrayList<Enemy> allEnemies, Player player) {
         Vector2 playerPosition = player.getPosition();
         Vector2 toPlayer = new Vector2(playerPosition).sub(position).nor();
-        float speed = 100f;
+        float speed = 150f;
         float delta = Gdx.graphics.getDeltaTime();
         damageCooldown -= delta;
 
