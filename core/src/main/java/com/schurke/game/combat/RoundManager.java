@@ -20,7 +20,7 @@ public class RoundManager {
         this.enemyManager = enemyManager;
         this.random = new Random();
         // Spawn initial enemies
-        enemyManager.spawnEnemy(2);
+        // Initial spawn will be handled in the first update
     }
 
     public void update(Player player) {
@@ -32,9 +32,9 @@ public class RoundManager {
         
         // Spawn enemies when timer is ready
         if (spawnTimer >= currentSpawnInterval) {
-            // Spawn more enemies at higher levels, but slower progression
-            int spawnCount = 1 + random.nextInt(1 + player.getLevel() / 4);
-            enemyManager.spawnEnemy(spawnCount);
+            // Spawn more enemies at higher levels, more aggressive for big map
+            int spawnCount = 1 + random.nextInt(2 + player.getLevel() / 2);
+            enemyManager.spawnEnemy(spawnCount, player, player.getCamera());
             spawnTimer = 0f;
         }
     }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.map.TileMap;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
@@ -20,41 +21,46 @@ public class EnemyManager {
         this.random = new Random();
     }
 
-    public void spawnEnemy(int count) {
+    public void spawnEnemy(int count, Player player, OrthographicCamera camera) {
         for (int i = 0; i < count; i++) {
-            Vector2 spawnPosition = getRandomEdgePosition();
+            Vector2 spawnPosition = getRandomPositionAtViewportEdge(camera);
             enemies.add(new Enemy(spawnPosition, 100f, 1f, 20f));
         }
     }
 
-    private Vector2 getRandomEdgePosition() {
+    private Vector2 getRandomPositionAtViewportEdge(OrthographicCamera camera) {
         float margin = 30f;
         float mapWidth = map.getMapWidth() * map.getTileSize();
         float mapHeight = map.getMapHeight() * map.getTileSize();
-        
-        // Choose a random edge (0=top, 1=right, 2=bottom, 3=left)
-        int edge = random.nextInt(4);
+        float left = Math.max(margin, camera.position.x - camera.viewportWidth / 2f);
+        float right = Math.min(mapWidth - margin, camera.position.x + camera.viewportWidth / 2f);
+        float bottom = Math.max(margin, camera.position.y - camera.viewportHeight / 2f);
+        float top = Math.min(mapHeight - margin, camera.position.y + camera.viewportHeight / 2f);
+
+        int edge = random.nextInt(4); // 0=top, 1=right, 2=bottom, 3=left
         float x, y;
-        
         switch (edge) {
-            case 0: // Top edge
-                x = margin + random.nextFloat() * (mapWidth - 2 * margin);
-                y = mapHeight - margin;
+            case 0: // Top
+                x = left + random.nextFloat() * (right - left);
+                y = top + margin;
+                if (y > mapHeight - margin) y = mapHeight - margin;
                 break;
-            case 1: // Right edge
-                x = mapWidth - margin;
-                y = margin + random.nextFloat() * (mapHeight - 2 * margin);
+            case 1: // Right
+                x = right + margin;
+                if (x > mapWidth - margin) x = mapWidth - margin;
+                y = bottom + random.nextFloat() * (top - bottom);
                 break;
-            case 2: // Bottom edge
-                x = margin + random.nextFloat() * (mapWidth - 2 * margin);
-                y = margin;
+            case 2: // Bottom
+                x = left + random.nextFloat() * (right - left);
+                y = bottom - margin;
+                if (y < margin) y = margin;
                 break;
-            default: // Left edge
-                x = margin;
-                y = margin + random.nextFloat() * (mapHeight - 2 * margin);
+            default: // Left
+                x = left - margin;
+                if (x < margin) x = margin;
+                y = bottom + random.nextFloat() * (top - bottom);
                 break;
         }
-        
         return new Vector2(x, y);
     }
 

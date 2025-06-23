@@ -68,7 +68,7 @@ public class GameScreen implements Screen {
 
         this.map = new TileMap();
         this.camera = new OrthographicCamera();
-        this.viewport = new FitViewport(1280, 960, camera);
+        this.viewport = new ScreenViewport(camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
         this.player = new Player(map.getCenter(), 100f, 100f, camera);

@@ -222,4 +222,8 @@ public class Player {
     public int getXpForNextLevel() {
         return xpForNextLevel;
     }
+
+    public OrthographicCamera getCamera() {
+        return camera;
+    }
 }
