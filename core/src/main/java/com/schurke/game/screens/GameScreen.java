@@ -27,7 +27,7 @@ import com.schurke.game.entities.Player;
 import com.schurke.game.map.TileMap;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.ui.LevelBar;
-import com.schurke.game.weapons.Pistol;
+import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
 
@@ -86,7 +86,7 @@ public class GameScreen implements Screen {
         this.levelBar = new LevelBar(player, font);
 
         this.bullets = new ArrayList<>();
-        this.currentWeapon = new Pistol();
+        this.currentWeapon = new LaserGun();
         this.combatController = new CombatController(player, currentWeapon, camera, bullets);
         this.bulletManager = new BulletManager(bullets, enemyManager);
         this.roundManager = new RoundManager(enemyManager);
@@ -159,7 +159,7 @@ public class GameScreen implements Screen {
             enemyManager.update(player);
             player.update(map);
             combatController.update(delta);
-            bulletManager.updateAndRender(delta, shape);
+            bulletManager.updateAndRender(delta, shape, batch);
 
             // Power-up logic now depends on player level
             powerUpsManager.update(delta, player);

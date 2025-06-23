@@ -5,12 +5,14 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.combat.Bullet;
 import com.schurke.game.core.GameConfig;
 
-public class Pistol implements Weapon {
+public class LaserGun implements Weapon {
     private final Sound shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pistol/shoot.wav"));
+    private final Texture laserTexture = new Texture(Gdx.files.internal("projectile/projectile_laser.png"));
 
     private final float cooldown = 0.3f;
     private final float damage = 50f;
@@ -20,10 +22,10 @@ public class Pistol implements Weapon {
         List<Bullet> bullets = new ArrayList<>();
 
         float speed = 800f;
-        float size = 5f;
+        float size = 32f;
         float lifetime = 2f;
 
-        bullets.add(new Bullet(position, direction, speed, damage, size, lifetime));
+        bullets.add(new Bullet(position, direction, speed, damage, size, lifetime, laserTexture));
         shootSound.play();
         return bullets;
     }
@@ -46,10 +48,11 @@ public class Pistol implements Weapon {
     @Override
     public void dispose() {
         shootSound.dispose();
+        laserTexture.dispose();
     }
 
     @Override
     public void update(float delta) {
         // No reload logic
     }
-}
+} 
