@@ -26,8 +26,18 @@ public class Bullet {
     }
 
     public void render(ShapeRenderer shape) {
-        shape.setColor(1f, 1f, 0f, 1f);
-        shape.circle(position.x, position.y, size);
+        // Berechne die Rotation in Grad
+        float angle = (float)Math.toDegrees(Math.atan2(velocity.y, velocity.x));
+        shape.identity();
+        shape.translate(position.x, position.y, 0);
+        shape.rotate(0, 0, 1, angle);
+        // Outline
+        shape.setColor(0.2f, 0.1f, 0f, 1f);
+        shape.ellipse(-size * 1.2f, -size * 0.5f, size * 2.4f, size, 32);
+        // Kern
+        shape.setColor(1f, 0.8f, 0.2f, 1f);
+        shape.ellipse(-size, -size * 0.35f, size * 2f, size * 0.7f, 32);
+        shape.identity();
     }
 
     public boolean collidesWith(Enemy enemy) {
