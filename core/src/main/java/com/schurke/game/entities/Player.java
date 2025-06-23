@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.schurke.game.map.TileMap;
+import com.schurke.game.map.BaseTileMap;
 
 public class Player {
     private Vector2 position;
@@ -51,7 +51,7 @@ public class Player {
         this.invincibleTimer = 0f;
     }
 
-    public void update(TileMap map) {
+    public void update(BaseTileMap map) {
         float delta = Gdx.graphics.getDeltaTime();
         float speed = 300f;
 
@@ -174,6 +174,14 @@ public class Player {
 
     public void setPosition(float x, float y) {
         this.position.set(x, y);
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position.set(position);
+    }
+
+    public void updateCamera(OrthographicCamera newCamera) {
+        this.camera = newCamera;
     }
 
     public void dispose() {

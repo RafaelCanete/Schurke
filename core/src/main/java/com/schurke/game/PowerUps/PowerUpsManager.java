@@ -3,7 +3,7 @@ package com.schurke.game.PowerUps;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.entities.Player;
-import com.schurke.game.map.TileMap;
+import com.schurke.game.map.BaseTileMap;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class PowerUpsManager {
     private ArrayList<HealthPowerUp> activePowerUps;
-    private TileMap map;
+    private BaseTileMap map;
     private float spawnTimer;
     private float timeSinceLastSpawn = 0f;
     private Random random;
@@ -21,7 +21,7 @@ public class PowerUpsManager {
     private static final float SPAWN_CHANCE_INCREASE_PER_LEVEL = 0.02f; // 2% increase per level
     private static final float SPAWN_CHECK_INTERVAL = 5f; // Check to spawn a power-up every 5 seconds
 
-    public PowerUpsManager(TileMap map) {
+    public PowerUpsManager(BaseTileMap map) {
         this.map = map;
         this.activePowerUps = new ArrayList<>();
         this.random = new Random();

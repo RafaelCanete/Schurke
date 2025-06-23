@@ -35,9 +35,8 @@ public class Bullet {
 
     public void render(ShapeRenderer shape, SpriteBatch batch) {
         if (texture != null) {
-            // Mit Textur rendern
+            // Mit Textur rendern - SpriteBatch sollte bereits aktiv sein
             float angle = (float)Math.toDegrees(Math.atan2(velocity.y, velocity.x));
-            batch.begin();
             batch.draw(texture,
                 position.x - size, position.y - size / 2f,
                 size, size / 2f, // Origin
@@ -48,7 +47,6 @@ public class Bullet {
                 texture.getWidth(), texture.getHeight(),
                 false, false
             );
-            batch.end();
         } else {
             // Standard-ShapeRenderer
             float angle = (float)Math.toDegrees(Math.atan2(velocity.y, velocity.x));

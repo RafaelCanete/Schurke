@@ -7,7 +7,7 @@ import java.util.Iterator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.schurke.game.map.TileMap;
+import com.schurke.game.map.BaseTileMap;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Gdx;
 import com.schurke.game.effects.BloodEffectManager;
@@ -17,12 +17,12 @@ import com.badlogic.gdx.graphics.Color;
 public class EnemyManager {
     private ArrayList<Enemy> enemies;
     private Random random;
-    private TileMap map;
+    private BaseTileMap map;
     private BloodEffectManager bloodEffectManager;
     private ArrayList<ScorePopup> scorePopups = new ArrayList<>();
     private BitmapFont popupFont;
 
-    public EnemyManager(TileMap map) {
+    public EnemyManager(BaseTileMap map) {
         this.map = map;
         this.enemies = new ArrayList<>();
         this.random = new Random();

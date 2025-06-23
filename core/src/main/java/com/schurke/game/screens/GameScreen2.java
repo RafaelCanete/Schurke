@@ -24,8 +24,7 @@ import com.schurke.game.combat.RoundManager;
 import com.schurke.game.core.GameConfig;
 import com.schurke.game.entities.EnemyManager;
 import com.schurke.game.entities.Player;
-import com.schurke.game.entities.PortalManager;
-import com.schurke.game.map.TileMap;
+import com.schurke.game.map.TileMap2;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.ui.LevelBar;
 import com.schurke.game.weapons.LaserGun;
@@ -33,11 +32,11 @@ import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
 import com.badlogic.gdx.graphics.Cursor;
 
-public class GameScreen extends BaseGameScreen {
+public class GameScreen2 extends BaseGameScreen {
     private Main game;
     private SpriteBatch batch;
     private Texture image;
-    private TileMap map;
+    private TileMap2 map;
     private ShapeRenderer shape;
     private Player player;
     private HealthBar playerHealthBar;
@@ -60,25 +59,28 @@ public class GameScreen extends BaseGameScreen {
 
     // PowerUps
     private PowerUpsManager powerUpsManager;
-    
-    // Portal
-    private PortalManager portalManager;
 
     private Texture cursorTexture;
 
-    public GameScreen(Main game) {
+    public GameScreen2(Main game, Player player) {
         this.game = game;
         this.batch = game.getBatch();
         this.shape = game.getShapeRenderer();
         this.gameOver = false;
         this.deathTimer = 0;
 
-        this.map = new TileMap();
+        this.map = new TileMap2();
         this.camera = new OrthographicCamera();
         this.viewport = new ScreenViewport(camera);
         this.viewport.apply();
         this.camera.position.set(map.getCenter(), 0);
-        this.player = new Player(map.getCenter(), 100f, 100f, camera);
+        
+        // Verwende den übergebenen Player (mit Level und XP)
+        this.player = player;
+        // Setze Position auf Center der neuen Map
+        this.player.setPosition(map.getCenter());
+        // Aktualisiere die Kamera im Player für GameScreen2
+        this.player.updateCamera(camera);
 
         this.uiCamera = new OrthographicCamera();
         this.uiViewport = new ScreenViewport(uiCamera);
@@ -99,7 +101,6 @@ public class GameScreen extends BaseGameScreen {
         this.roundManager = new RoundManager(enemyManager);
 
         this.powerUpsManager = new PowerUpsManager(map);
-        this.portalManager = new PortalManager(map);
 
         this.cursorTexture = new Texture(Gdx.files.internal("cursor/cursor_aim.png"));
     }
@@ -159,39 +160,19 @@ public class GameScreen extends BaseGameScreen {
         bulletManager.updateAndRender(delta, shape, batch);
         batch.end();
 
-        // Draw health bars (over everything)
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        enemyManager.renderHealthBars(shape);
-        shape.end();
-
         // Update game logic (außerhalb von ShapeRenderer)
         if (!gameOver) {
             roundManager.update(player);
             enemyManager.update(player);
             player.update(map);
             combatController.update(delta);
-
-            // Power-up logic now depends on player level
             powerUpsManager.update(delta, player);
-            
-            // Portal logic
-            portalManager.update(delta, player);
-            
-            // Check if player entered portal
-            if (portalManager.isPlayerInPortal(player)) {
-                // Teleport to new map
-                game.setScreen(new GameScreen2(game, player));
-                return;
-            }
         }
-        
-        // Render portal (separat)
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        portalManager.render(batch, shape);
-        shape.end();
 
-        // HUD
-        renderHUD();
+        // Draw health bars (over everything)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderHealthBars(shape);
+        shape.end();
 
         // UI overlays (health bars, etc.)
         uiViewport.apply();
@@ -202,6 +183,9 @@ public class GameScreen extends BaseGameScreen {
 
         // Render the new level bar
         levelBar.render(shape, hudBatch);
+
+        // HUD
+        renderHUD();
 
         // Cursor-Bild im UI-Layer (Screen-Koordinaten) zeichnen
         batch.setProjectionMatrix(new com.badlogic.gdx.math.Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -234,10 +218,14 @@ public class GameScreen extends BaseGameScreen {
         player.render(batch);
         enemyManager.render(batch, player);
         powerUpsManager.render(batch);
-        portalManager.render(batch, shape);
+        enemyManager.renderPopups(batch);
+        // Bullet rendering (innerhalb des SpriteBatch-Blocks)
+        bulletManager.updateAndRender(0, shape, batch); // delta = 0 für renderWithoutUpdate
         batch.end();
 
+        // Blood effects
         shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderBloodEffects(shape);
         enemyManager.renderHealthBars(shape);
         shape.end();
 
@@ -263,27 +251,8 @@ public class GameScreen extends BaseGameScreen {
             font.draw(hudBatch, "Invincible!", Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 40);
         }
 
-        // Portal-Position anzeigen (unter dem Level)
-        if (portalManager.shouldShowPortalMessage()) {
-            String portalText = "Ein Portal ist im " + portalManager.getPortalLocation() + " erschienen!";
-            
-            // Pulsierende Animation
-            float time = System.currentTimeMillis() / 1000f;
-            float pulse = 0.5f + 0.5f * (float)Math.sin(time * 3f); // 3 Hz Pulsieren
-            
-            // Coole Farbe (Lila mit Pulsieren)
-            float r = 0.8f + 0.2f * pulse;
-            float g = 0.2f + 0.3f * pulse;
-            float b = 1.0f;
-            font.setColor(r, g, b, 1f);
-            
-            // Position unter dem Level (Level ist bei y = height - 40)
-            float y = Gdx.graphics.getHeight() - 80;
-            font.draw(hudBatch, portalText, Gdx.graphics.getWidth() / 2 - 150, y);
-            
-            // Farbe zurücksetzen
-            font.setColor(1f, 1f, 1f, 1f);
-        }
+        // Zeige an, dass wir auf Map 2 sind
+        font.draw(hudBatch, "MAP 2", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() - 20);
 
         hudBatch.end();
     }
@@ -323,6 +292,5 @@ public class GameScreen extends BaseGameScreen {
         hudBatch.dispose();
         cursorTexture.dispose();
         powerUpsManager.dispose();
-        portalManager.dispose();
     }
-}
+} 

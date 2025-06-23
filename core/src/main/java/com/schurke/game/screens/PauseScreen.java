@@ -19,7 +19,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class PauseScreen implements Screen {
     private Main game;
-    private GameScreen gameScreen;
+    private BaseGameScreen gameScreen;
     private Stage stage;
     private SpriteBatch batch;
     private BitmapFont font;
@@ -27,7 +27,7 @@ public class PauseScreen implements Screen {
     private boolean isCountingDown;
     private ShapeRenderer shapeRenderer;
 
-    public PauseScreen(Main game, GameScreen gameScreen) {
+    public PauseScreen(Main game, BaseGameScreen gameScreen) {
         this.game = game;
         this.gameScreen = gameScreen;
         stage = new Stage(new ScreenViewport());

@@ -4,15 +4,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
-public class TileMap extends BaseTileMap {
+public class TileMap2 extends BaseTileMap {
     private static int tileSize = 64;
-    private static int mapWidth = 80;
-    private static int mapHeight = 60;
+    private static int mapWidth = 80; // Größere Map
+    private static int mapHeight = 60; // Größere Map
 
     private Texture mapTexture;
 
-    public TileMap(){
-        mapTexture = new Texture(Gdx.files.internal("textures/map1.png"));
+    public TileMap2(){
+        // Verwende map2.png für die zweite Map
+        mapTexture = new Texture(Gdx.files.internal("textures/map2.png"));
         mapTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         mapTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
     }
@@ -57,4 +58,4 @@ public class TileMap extends BaseTileMap {
     public int getMapWidth() {
         return mapWidth;
     }
-}
+} 
