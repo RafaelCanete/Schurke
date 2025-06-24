@@ -16,15 +16,24 @@ public class PortalManager {
     private float portalSpawnTime = 0f;
     private boolean showPortalMessage = false;
     private static final float MESSAGE_DURATION = 20f; // 20 Sekunden
+    private boolean portalPermanentlyDisabled = false; // Portal komplett deaktivieren
     
     public PortalManager(BaseTileMap map) {
         this.map = map;
         this.random = new Random();
     }
     
+    public PortalManager(BaseTileMap map, boolean spawnImmediately) {
+        this.map = map;
+        this.random = new Random();
+        if (spawnImmediately) {
+            spawnPortalInCenter();
+        }
+    }
+    
     public void update(float delta, Player player) {
-        // Spawn Portal nach Level 10
-        if (player.getLevel() >= PORTAL_SPAWN_LEVEL && !portalSpawned) {
+        // Spawn Portal nach Level 10, aber nur wenn nicht permanent deaktiviert
+        if (!portalPermanentlyDisabled && player.getLevel() >= PORTAL_SPAWN_LEVEL && !portalSpawned) {
             spawnPortal();
         }
         
@@ -80,6 +89,19 @@ public class PortalManager {
         portalSpawnTime = 0f;
     }
     
+    public void spawnPortalInCenter() {
+        // Spawn Portal in der Mitte der Map
+        float mapWidth = map.getMapWidth() * map.getTileSize();
+        float mapHeight = map.getMapHeight() * map.getTileSize();
+        
+        float x = (mapWidth - 80f) / 2f; // 80f ist Portal-Größe
+        float y = (mapHeight - 80f) / 2f;
+        
+        portal = new Portal(new Vector2(x, y));
+        portalSpawned = true;
+        portalLocation = "MITTE";
+    }
+    
     public void render(SpriteBatch batch, ShapeRenderer shape) {
         if (portal != null && portal.isActive()) {
             portal.renderShape(shape);
@@ -108,7 +130,11 @@ public class PortalManager {
     public void deactivatePortal() {
         if (portal != null) {
             portal.setActive(false);
+            portal = null; // Portal komplett entfernen
         }
+        portalSpawned = false; // Portal-Spawn-Status zurücksetzen
+        showPortalMessage = false; // Nachricht auch ausblenden
+        portalPermanentlyDisabled = true; // Portal permanent deaktivieren
     }
     
     public void dispose() {

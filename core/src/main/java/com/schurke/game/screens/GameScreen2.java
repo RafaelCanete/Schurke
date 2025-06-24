@@ -4,18 +4,17 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.graphics.Cursor;
 import com.schurke.game.Main;
 import com.schurke.game.combat.Bullet;
 import com.schurke.game.combat.BulletManager;
@@ -24,13 +23,13 @@ import com.schurke.game.combat.RoundManager;
 import com.schurke.game.core.GameConfig;
 import com.schurke.game.entities.EnemyManager;
 import com.schurke.game.entities.Player;
+import com.schurke.game.entities.PortalManager;
 import com.schurke.game.map.TileMap2;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.ui.LevelBar;
 import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
-import com.badlogic.gdx.graphics.Cursor;
 
 public class GameScreen2 extends BaseGameScreen {
     private Main game;
@@ -59,8 +58,11 @@ public class GameScreen2 extends BaseGameScreen {
 
     // PowerUps
     private PowerUpsManager powerUpsManager;
+    private PortalManager portalManager;
 
     private Texture cursorTexture;
+    private float portalSpawnTimer = 0f;
+    private static final float PORTAL_SPAWN_DELAY = 3f; // 3 Sekunden Verzögerung
 
     public GameScreen2(Main game, Player player) {
         this.game = game;
@@ -77,8 +79,9 @@ public class GameScreen2 extends BaseGameScreen {
         
         // Verwende den übergebenen Player (mit Level und XP)
         this.player = player;
-        // Setze Position auf Center der neuen Map
-        this.player.setPosition(map.getCenter());
+        // Setze Position auf sichere Position (nicht in der Mitte, wo das Portal ist)
+        Vector2 safePosition = new Vector2(100f, 100f); // Sichere Position in der Ecke
+        this.player.setPosition(safePosition);
         // Aktualisiere die Kamera im Player für GameScreen2
         this.player.updateCamera(camera);
 
@@ -87,6 +90,8 @@ public class GameScreen2 extends BaseGameScreen {
         this.uiViewport.apply();
 
         this.enemyManager = new EnemyManager(map);
+        // Entferne alle Gegner beim Betreten der zweiten Map
+        this.enemyManager.getEnemies().clear();
         this.playerHealthBar = new HealthBar(player, 20f);
         this.image = new Texture("libgdx.png");
         this.font = new BitmapFont();
@@ -100,7 +105,8 @@ public class GameScreen2 extends BaseGameScreen {
         this.bulletManager = new BulletManager(bullets, enemyManager);
         this.roundManager = new RoundManager(enemyManager);
 
-        this.powerUpsManager = new PowerUpsManager(map);
+        this.powerUpsManager = new PowerUpsManager(map, false);
+        this.portalManager = new PortalManager(map, false); // Portal nicht sofort spawnen
 
         this.cursorTexture = new Texture(Gdx.files.internal("cursor/cursor_aim.png"));
     }
@@ -124,15 +130,11 @@ public class GameScreen2 extends BaseGameScreen {
         }
 
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        // Camera follows player, but clamp to map bounds
-        float camHalfWidth = camera.viewportWidth / 2f;
-        float camHalfHeight = camera.viewportHeight / 2f;
+        // Kamera zentriert auf die kleine Map (nicht dem Spieler folgen)
         float mapPixelWidth = map.getMapWidth() * map.getTileSize();
         float mapPixelHeight = map.getMapHeight() * map.getTileSize();
-        float camX = player.getPosition().x;
-        float camY = player.getPosition().y;
-        camX = Math.max(camHalfWidth, Math.min(camX, mapPixelWidth - camHalfWidth));
-        camY = Math.max(camHalfHeight, Math.min(camY, mapPixelHeight - camHalfHeight));
+        float camX = mapPixelWidth / 2f; // Zentrum der Map
+        float camY = mapPixelHeight / 2f; // Zentrum der Map
         camera.position.set(camX, camY, 0);
         camera.update();
 
@@ -160,13 +162,41 @@ public class GameScreen2 extends BaseGameScreen {
         bulletManager.updateAndRender(delta, shape, batch);
         batch.end();
 
-        // Update game logic (außerhalb von ShapeRenderer)
+        // Portal rendering (separat)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        portalManager.render(batch, shape);
+        shape.end();
+
+        // KEIN Gegner-Spawning und KEIN Gegner-Update auf Map 2!
+        // if (!gameOver) {
+        //     roundManager.update(player);
+        //     enemyManager.update(player);
+        //     player.update(map);
+        //     combatController.update(delta);
+        //     powerUpsManager.update(delta, player);
+        // }
         if (!gameOver) {
-            roundManager.update(player);
-            enemyManager.update(player);
             player.update(map);
             combatController.update(delta);
             powerUpsManager.update(delta, player);
+            
+            // Portal-Spawn-Logik mit Verzögerung
+            portalSpawnTimer += delta;
+            if (portalSpawnTimer >= PORTAL_SPAWN_DELAY && !portalManager.isPortalActive()) {
+                // Spawn Portal in der Mitte nach der Verzögerung
+                portalManager.spawnPortalInCenter();
+            }
+            
+            portalManager.update(delta, player);
+            
+            // Prüfe Portal-Kollision
+            if (portalManager.isPlayerInPortal(player)) {
+                // Zurück zur ersten Map - erstelle neuen GameScreen mit bestehendem Player
+                GameScreen newGameScreen = new GameScreen(game);
+                newGameScreen.setPlayer(player); // Player übertragen
+                game.setScreen(newGameScreen);
+                return;
+            }
         }
 
         // Draw health bars (over everything)
@@ -227,6 +257,11 @@ public class GameScreen2 extends BaseGameScreen {
         shape.begin(ShapeRenderer.ShapeType.Filled);
         enemyManager.renderBloodEffects(shape);
         enemyManager.renderHealthBars(shape);
+        shape.end();
+
+        // Portal rendering (separat)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        portalManager.render(batch, shape);
         shape.end();
 
         uiViewport.apply();
@@ -292,5 +327,6 @@ public class GameScreen2 extends BaseGameScreen {
         hudBatch.dispose();
         cursorTexture.dispose();
         powerUpsManager.dispose();
+        portalManager.dispose();
     }
 } 

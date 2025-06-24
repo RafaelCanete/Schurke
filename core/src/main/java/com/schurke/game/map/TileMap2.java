@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TileMap2 extends BaseTileMap {
     private static int tileSize = 64;
-    private static int mapWidth = 80; // Größere Map
-    private static int mapHeight = 60; // Größere Map
+    private static int mapWidth = 10; // Kleiner Raum - 10 Tiles breit
+    private static int mapHeight = 10; // Kleiner Raum - 10 Tiles hoch
 
     private Texture mapTexture;
 
@@ -20,13 +20,17 @@ public class TileMap2 extends BaseTileMap {
 
     @Override
     public void render(SpriteBatch batch){
-        int tileW = mapTexture.getWidth();
-        int tileH = mapTexture.getHeight();
-        for (int y = 0; y < mapHeight * tileSize; y += tileH) {
-            for (int x = 0; x < mapWidth * tileSize; x += tileW) {
-                batch.draw(mapTexture, x, y, tileW, tileH);
-            }
-        }
+        // Berechne die Mitte der 10x10 Tile-Fläche
+        float mapCenterX = (mapWidth * tileSize) / 2f;
+        float mapCenterY = (mapHeight * tileSize) / 2f;
+        
+        // Zeichne die map2.png einmal in der Mitte
+        float textureWidth = mapTexture.getWidth();
+        float textureHeight = mapTexture.getHeight();
+        float drawX = mapCenterX - textureWidth / 2f;
+        float drawY = mapCenterY - textureHeight / 2f;
+        
+        batch.draw(mapTexture, drawX, drawY, textureWidth, textureHeight);
     }
 
     @Override

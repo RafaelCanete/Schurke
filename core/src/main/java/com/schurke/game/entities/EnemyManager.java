@@ -53,7 +53,7 @@ public class EnemyManager {
     }
 
     private Vector2 getRandomPositionAtViewportEdge(OrthographicCamera camera) {
-        float margin = 30f;
+        float margin = 256f; // 4 Tiles Abstand zum Rand
         float mapWidth = map.getMapWidth() * map.getTileSize();
         float mapHeight = map.getMapHeight() * map.getTileSize();
         float left = Math.max(margin, camera.position.x - camera.viewportWidth / 2f);
@@ -85,6 +85,9 @@ public class EnemyManager {
                 y = bottom + random.nextFloat() * (top - bottom);
                 break;
         }
+        // Stelle sicher, dass der Spawnpunkt nicht zu nah am Rand ist
+        x = Math.max(margin, Math.min(x, mapWidth - margin));
+        y = Math.max(margin, Math.min(y, mapHeight - margin));
         return new Vector2(x, y);
     }
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 
 public class Enemy {
     private Vector2 position;
@@ -36,7 +35,7 @@ public class Enemy {
                 sharedBatTexture = new Texture(Gdx.files.internal("characters/new/enemy_bat.png"));
             }
             this.texture = sharedBatTexture;
-            this.scoreValue = 150;
+            this.scoreValue = 1500;
             this.size = 60f;
             this.health = 100f;
             this.maxHealth = 100f;

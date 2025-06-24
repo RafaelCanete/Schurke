@@ -15,6 +15,7 @@ public class PowerUpsManager {
     private float spawnTimer;
     private float timeSinceLastSpawn = 0f;
     private Random random;
+    private boolean allowSpawning;
 
     // Spawn control
     private static final float BASE_SPAWN_CHANCE = 0.1f; // 10% base chance
@@ -22,15 +23,20 @@ public class PowerUpsManager {
     private static final float SPAWN_CHECK_INTERVAL = 5f; // Check to spawn a power-up every 5 seconds
 
     public PowerUpsManager(BaseTileMap map) {
+        this(map, true); // Standard: Spawning erlaubt
+    }
+
+    public PowerUpsManager(BaseTileMap map, boolean allowSpawning) {
         this.map = map;
+        this.allowSpawning = allowSpawning;
         this.activePowerUps = new ArrayList<>();
         this.random = new Random();
         this.spawnTimer = 0f;
     }
 
     public void update(float delta, Player player) {
-        // Only start spawning from level 3 onwards
-        if (player.getLevel() < 3) {
+        // Nur spawnen wenn erlaubt und ab Level 3
+        if (!allowSpawning || player.getLevel() < 3) {
             return;
         }
 

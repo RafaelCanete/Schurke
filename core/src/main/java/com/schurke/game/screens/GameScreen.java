@@ -4,18 +4,17 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.graphics.Cursor;
 import com.schurke.game.Main;
 import com.schurke.game.combat.Bullet;
 import com.schurke.game.combat.BulletManager;
@@ -31,7 +30,6 @@ import com.schurke.game.ui.LevelBar;
 import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
-import com.badlogic.gdx.graphics.Cursor;
 
 public class GameScreen extends BaseGameScreen {
     private Main game;
@@ -329,5 +327,39 @@ public class GameScreen extends BaseGameScreen {
         cursorTexture.dispose();
         powerUpsManager.dispose();
         portalManager.dispose();
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+        // Player-Position auf sichere Position setzen (nicht in der Mitte, falls dort ein Portal ist)
+        Vector2 safePosition = new Vector2(200f, 200f); // Sichere Position
+        this.player.setPosition(safePosition);
+        // Kamera auf Player setzen
+        this.camera.position.set(player.getPosition(), 0);
+        this.camera.update();
+        // Player-Kamera aktualisieren
+        this.player.updateCamera(camera);
+        
+        // Alle Manager und UI-Elemente mit dem neuen Player aktualisieren
+        this.playerHealthBar = new HealthBar(player, 20f);
+        this.levelBar = new LevelBar(player, font);
+        
+        // Bullet-Liste leeren und neue Manager erstellen
+        this.bullets.clear();
+        this.combatController = new CombatController(player, currentWeapon, camera, bullets);
+        this.bulletManager = new BulletManager(bullets, enemyManager);
+        
+        // EnemyManager zurücksetzen (keine alten Gegner)
+        this.enemyManager.getEnemies().clear();
+        
+        // RoundManager zurücksetzen für korrektes Level-System
+        this.roundManager = new RoundManager(enemyManager);
+        
+        // PowerUpsManager zurücksetzen (keine alten PowerUps)
+        this.powerUpsManager.dispose();
+        this.powerUpsManager = new PowerUpsManager(map);
+        
+        // Portal deaktivieren, da wir bereits Level 10+ haben
+        this.portalManager.deactivatePortal();
     }
 }
