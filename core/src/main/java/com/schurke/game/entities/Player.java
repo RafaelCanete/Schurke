@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.schurke.game.map.TileMap;
+import com.badlogic.gdx.audio.Sound;
 
 public class Player {
     private Vector2 position;
@@ -36,6 +37,11 @@ public class Player {
     private float rotation = 0f;
 
     private static final Vector3 tmpMouse = new Vector3();
+    
+    // Sounds
+    private Sound damageTakenSound;
+    private Sound deathSound;
+    private boolean deathSoundPlayed = false;
 
     public Player(Vector2 startPosition, float health, float maxHealth, OrthographicCamera camera) {
         this.position = new Vector2(startPosition);
@@ -49,6 +55,10 @@ public class Player {
 
         this.invincible = false;
         this.invincibleTimer = 0f;
+        
+        // Load sounds
+        this.damageTakenSound = Gdx.audio.newSound(Gdx.files.internal("sounds/player/damage_taken.mp3"));
+        this.deathSound = Gdx.audio.newSound(Gdx.files.internal("sounds/player/death.mp3"));
     }
 
     public void update(TileMap map) {
@@ -133,6 +143,17 @@ public class Player {
         if (invincible) return;
         health -= amount;
         if (health < 0) health = 0;
+        
+        // Play damage sound if player is not dead
+        if (!isDead() && damageTakenSound != null) {
+            damageTakenSound.play(0.5f);
+        }
+        
+        // Play death sound if this damage killed the player
+        if (isDead() && !deathSoundPlayed && deathSound != null) {
+            deathSound.play(0.7f);
+            deathSoundPlayed = true;
+        }
     }
 
     public void setInvincible(boolean invincible) {
@@ -178,6 +199,12 @@ public class Player {
 
     public void dispose() {
         playerTexture.dispose();
+        if (damageTakenSound != null) {
+            damageTakenSound.dispose();
+        }
+        if (deathSound != null) {
+            deathSound.dispose();
+        }
     }
 
     public void addXP(int amount) {

@@ -23,11 +23,12 @@ public class Enemy {
     private static Texture sharedBatTexture;
     private static Texture sharedBatTexture2;
     private static Texture sharedBabySpiderTexture;
+    private static Texture sharedBabySpiderTexture2;
     private static Texture sharedSpiderTexture;
     private EnemyType type;
     private float speed;
     private float animationTimer = 0f;
-    private static final float ANIMATION_FRAME_DURATION = 0.15f;
+    private static final float ANIMATION_FRAME_DURATION = 0.25f;
     private boolean isFirstFrame = true;
 
     public enum EnemyType { BAT, BABY_SPIDER, SPIDER }
@@ -52,6 +53,9 @@ public class Enemy {
         } else if (type == EnemyType.BABY_SPIDER) {
             if (sharedBabySpiderTexture == null) {
                 sharedBabySpiderTexture = new Texture(Gdx.files.internal("characters/new/enemy_baby_spider.png"));
+            }
+            if (sharedBabySpiderTexture2 == null) {
+                sharedBabySpiderTexture2 = new Texture(Gdx.files.internal("characters/new/enemy_baby_spider2.png"));
             }
             this.texture = sharedBabySpiderTexture;
             this.scoreValue = 100;
@@ -134,13 +138,17 @@ public class Enemy {
         float delta = Gdx.graphics.getDeltaTime();
         damageCooldown -= delta;
 
-        // Update bat animation
-        if (type == EnemyType.BAT) {
+        // Update animations
+        if (type == EnemyType.BAT || type == EnemyType.BABY_SPIDER) {
             animationTimer += delta;
             if (animationTimer >= ANIMATION_FRAME_DURATION) {
                 animationTimer = 0f;
                 isFirstFrame = !isFirstFrame;
-                texture = isFirstFrame ? sharedBatTexture : sharedBatTexture2;
+                if (type == EnemyType.BAT) {
+                    texture = isFirstFrame ? sharedBatTexture : sharedBatTexture2;
+                } else {
+                    texture = isFirstFrame ? sharedBabySpiderTexture : sharedBabySpiderTexture2;
+                }
             }
         }
 
@@ -206,6 +214,10 @@ public class Enemy {
         if (sharedBabySpiderTexture != null) {
             sharedBabySpiderTexture.dispose();
             sharedBabySpiderTexture = null;
+        }
+        if (sharedBabySpiderTexture2 != null) {
+            sharedBabySpiderTexture2.dispose();
+            sharedBabySpiderTexture2 = null;
         }
         if (sharedSpiderTexture != null) {
             sharedSpiderTexture.dispose();
