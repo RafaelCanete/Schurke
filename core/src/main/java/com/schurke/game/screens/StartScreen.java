@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Cursor;
 
 public class StartScreen implements Screen {
     private Main game;
@@ -127,6 +128,10 @@ public class StartScreen implements Screen {
 
     @Override
     public void show() {
+        // Stelle sicher, dass der Input Processor korrekt gesetzt ist
+        Gdx.input.setInputProcessor(stage);
+        // Normalen Cursor anzeigen
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         // Starte die Musik wenn der Screen angezeigt wird
         if (menuMusic != null) {
             menuMusic.play();
@@ -157,6 +162,8 @@ public class StartScreen implements Screen {
 
     @Override
     public void hide() {
+        // Input Processor freigeben wenn Screen versteckt wird
+        Gdx.input.setInputProcessor(null);
         // Stoppe die Musik wenn der Screen versteckt wird
         if (menuMusic != null) {
             menuMusic.stop();

@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.schurke.game.Main;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Cursor;
 
 public class GameOverScreen implements Screen {
     private final Main game;
@@ -75,6 +76,9 @@ public class GameOverScreen implements Screen {
         menuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                // Cursor zurücksetzen und Input Processor freigeben
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                Gdx.input.setInputProcessor(null);
                 game.setScreen(new StartScreen(game));
                 dispose();
             }
