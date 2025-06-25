@@ -21,10 +21,14 @@ public class Enemy {
     private float hitTimer = 0f;
     private static final float HIT_DURATION = 0.2f;
     private static Texture sharedBatTexture;
+    private static Texture sharedBatTexture2;
     private static Texture sharedBabySpiderTexture;
     private static Texture sharedSpiderTexture;
     private EnemyType type;
     private float speed;
+    private float animationTimer = 0f;
+    private static final float ANIMATION_FRAME_DURATION = 0.15f;
+    private boolean isFirstFrame = true;
 
     public enum EnemyType { BAT, BABY_SPIDER, SPIDER }
 
@@ -34,6 +38,9 @@ public class Enemy {
         if (type == EnemyType.BAT) {
             if (sharedBatTexture == null) {
                 sharedBatTexture = new Texture(Gdx.files.internal("characters/new/enemy_bat.png"));
+            }
+            if (sharedBatTexture2 == null) {
+                sharedBatTexture2 = new Texture(Gdx.files.internal("characters/new/enemy_bat2.png"));
             }
             this.texture = sharedBatTexture;
             this.scoreValue = 150;
@@ -127,6 +134,16 @@ public class Enemy {
         float delta = Gdx.graphics.getDeltaTime();
         damageCooldown -= delta;
 
+        // Update bat animation
+        if (type == EnemyType.BAT) {
+            animationTimer += delta;
+            if (animationTimer >= ANIMATION_FRAME_DURATION) {
+                animationTimer = 0f;
+                isFirstFrame = !isFirstFrame;
+                texture = isFirstFrame ? sharedBatTexture : sharedBatTexture2;
+            }
+        }
+
         Vector2 separation = new Vector2();
         float separationDistance = 25f;
         float separationStrength = 100f;
@@ -181,6 +198,10 @@ public class Enemy {
         if (sharedBatTexture != null) {
             sharedBatTexture.dispose();
             sharedBatTexture = null;
+        }
+        if (sharedBatTexture2 != null) {
+            sharedBatTexture2.dispose();
+            sharedBatTexture2 = null;
         }
         if (sharedBabySpiderTexture != null) {
             sharedBabySpiderTexture.dispose();
