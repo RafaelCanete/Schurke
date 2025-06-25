@@ -41,12 +41,16 @@ public class GameOverScreen implements Screen {
         float spacing = 60;
 
         drawCentered("Game Over", centerY + spacing * 2);
+        drawCentered("Press R to Restart", centerY + spacing);
         drawCentered("Press ENTER to return to Menu", centerY);
-        drawCentered("Press ESC to Exit", centerY - spacing * 2);
+        drawCentered("Press ESC to Exit", centerY - spacing);
 
         batch.end();
 
-        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
+        if (Gdx.input.isKeyJustPressed(Keys.R)) {
+            game.setScreen(new GameScreen(game));
+            dispose();
+        } else if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
             game.setScreen(new StartScreen(game));
             dispose();
         } else if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {

@@ -2,6 +2,7 @@ package com.schurke.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -70,13 +71,13 @@ public class PauseScreen implements Screen {
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
 
-        countdownTime = 3;
+        countdownTime = 2; // Changed to 2 seconds
         isCountingDown = false;
     }
 
     private void startCountdown() {
         isCountingDown = true;
-        countdownTime = 3;
+        countdownTime = 2; // Changed to 2 seconds
         Gdx.input.setInputProcessor(null); // Disable input during countdown
     }
 
@@ -88,14 +89,30 @@ public class PauseScreen implements Screen {
         renderGameState();
 
         if (isCountingDown) {
-            // Render just the countdown number
+            // Check for space key to skip countdown
+            if (Gdx.input.isKeyJustPressed(Keys.SPACE)) {
+                game.setScreen(gameScreen);
+                return;
+            }
+
+            // Render countdown number and hint
             batch.begin();
             font.setColor(1, 0, 0, 1); // Red color for countdown
             String countText = String.valueOf((int)Math.ceil(countdownTime));
-            // Center the text
+            
+            // Center the countdown number
             float textX = Gdx.graphics.getWidth()/2f - font.getData().spaceXadvance * countText.length() / 2;
             float textY = Gdx.graphics.getHeight()/2f + font.getLineHeight()/2;
             font.draw(batch, countText, textX, textY);
+            
+            // Draw hint text below
+            font.getData().setScale(1.5f); // Smaller text for hint
+            String hintText = "Press SPACE to skip";
+            float hintX = Gdx.graphics.getWidth()/2f - font.getData().spaceXadvance * hintText.length() / 2;
+            float hintY = textY - font.getLineHeight() * 2;
+            font.draw(batch, hintText, hintX, hintY);
+            font.getData().setScale(3.0f); // Reset scale for next frame
+            
             batch.end();
 
             countdownTime -= delta;
