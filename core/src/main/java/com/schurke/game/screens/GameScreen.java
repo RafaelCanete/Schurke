@@ -31,6 +31,7 @@ import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
 import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.audio.Music;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -61,6 +62,7 @@ public class GameScreen implements Screen {
     private PowerUpsManager powerUpsManager;
 
     private Texture cursorTexture;
+    private Music gameMusic;
 
     public GameScreen(Main game) {
         this.game = game;
@@ -97,6 +99,12 @@ public class GameScreen implements Screen {
         this.powerUpsManager = new PowerUpsManager(map);
 
         this.cursorTexture = new Texture(Gdx.files.internal("cursor/cursor_aim.png"));
+
+        // Lade und starte die Hintergrundmusik
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music/ingame_music.mp3"));
+        gameMusic.setLooping(true);
+        gameMusic.setVolume(0.5f); // 50% Lautstärke
+        gameMusic.play();
     }
 
     @Override
@@ -107,7 +115,7 @@ public class GameScreen implements Screen {
         if (gameOver) {
             deathTimer += delta;
             if (deathTimer >= DEATH_DELAY) {
-                game.setScreen(new GameOverScreen(game));
+                game.setScreen(new GameOverScreen(game, this));
                 return;
             }
         }
@@ -250,6 +258,10 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(null);
         // Systemcursor verstecken
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+        // Setze die Musik fort wenn der Screen wieder angezeigt wird
+        if (gameMusic != null) {
+            gameMusic.play();
+        }
     }
 
     @Override
@@ -257,6 +269,10 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(null);
         // Cursor zurücksetzen
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        // Pausiere die Musik wenn der Screen versteckt wird (z.B. beim Pause-Menü)
+        if (gameMusic != null) {
+            gameMusic.pause();
+        }
     }
 
     @Override
@@ -284,6 +300,9 @@ public class GameScreen implements Screen {
             if (cursorTexture != null) cursorTexture.dispose();
             // Cursor zurücksetzen
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            if (gameMusic != null) {
+                gameMusic.dispose();
+            }
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
