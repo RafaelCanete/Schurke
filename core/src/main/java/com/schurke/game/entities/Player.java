@@ -9,12 +9,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.schurke.game.map.TileMap;
 import com.badlogic.gdx.audio.Sound;
+import com.schurke.game.core.GameConfig;
 
 public class Player {
     private Vector2 position;
     private float size;
     private float health;
     private float maxHealth;
+
+    // Dash-bezogene Eigenschaften
+    private boolean isDashing;
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private Vector2 dashDirection;
 
     private int score = 0;
     private int level = 1;
@@ -53,6 +60,12 @@ public class Player {
         this.isWalking = false;
         this.animationTimer = 0f;
 
+        // Initialisiere Dash-Eigenschaften
+        this.isDashing = false;
+        this.dashTimer = 0f;
+        this.dashCooldownTimer = 0f;
+        this.dashDirection = new Vector2();
+
         this.invincible = false;
         this.invincibleTimer = 0f;
         
@@ -65,20 +78,44 @@ public class Player {
         float delta = Gdx.graphics.getDeltaTime();
         float speed = 300f;
 
+        // Update dash cooldown
+        if (dashCooldownTimer > 0) {
+            dashCooldownTimer -= delta;
+        }
+
+        // Check for dash input
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.SPACE) && dashCooldownTimer <= 0 && !isDashing) {
+            startDash();
+        }
+
         float xNew = position.x;
         float yNew = position.y;
 
-        isWalking = false;
+        if (isDashing) {
+            // Update dash
+            dashTimer -= delta;
+            if (dashTimer <= 0) {
+                isDashing = false;
+                dashCooldownTimer = GameConfig.DASH_COOLDOWN;
+            } else {
+                // Apply dash movement
+                xNew += dashDirection.x * GameConfig.DASH_SPEED * delta;
+                yNew += dashDirection.y * GameConfig.DASH_SPEED * delta;
+            }
+        } else {
+            // Normal movement
+            isWalking = false;
 
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.W)) yNew += speed * delta;
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S)) yNew -= speed * delta;
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.A)) {
-            xNew -= speed * delta;
-            isWalking = true;
-        }
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.D)) {
-            xNew += speed * delta;
-            isWalking = true;
+            if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.W)) yNew += speed * delta;
+            if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S)) yNew -= speed * delta;
+            if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.A)) {
+                xNew -= speed * delta;
+                isWalking = true;
+            }
+            if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.D)) {
+                xNew += speed * delta;
+                isWalking = true;
+            }
         }
 
         updateFacingDirection();
@@ -93,25 +130,6 @@ public class Player {
             if (invincibleTimer <= 0f) {
                 invincible = false;
                 invincibleTimer = 0f;
-            }
-        }
-    }
-
-    private void updateFacingDirection() {
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY();
-        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
-        camera.unproject(mousePos);
-
-        float dx = mousePos.x - position.x;
-        float dy = mousePos.y - position.y;
-        float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
-        lastAngle = angle;
-
-        if (isWalking && (angle >= -45 && angle < 45 || angle >= 135 || angle < -135)) {
-            animationTimer += Gdx.graphics.getDeltaTime();
-            if (animationTimer >= ANIMATION_FRAME_DURATION) {
-                animationTimer = 0;
             }
         }
     }
@@ -137,6 +155,37 @@ public class Player {
             playerTexture.getWidth(), playerTexture.getHeight(),
             false, false
         );
+    }
+
+    private void startDash() {
+        isDashing = true;
+        dashTimer = GameConfig.DASH_DURATION;
+        
+        // Dash in die Richtung der aktuellen Bewegung oder in Blickrichtung wenn keine Bewegung
+        dashDirection.set(0, 0);
+        
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.W)) dashDirection.y += 1;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S)) dashDirection.y -= 1;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.A)) dashDirection.x -= 1;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.D)) dashDirection.x += 1;
+        
+        // Wenn keine Bewegungstaste gedrückt ist, dash in Blickrichtung
+        if (dashDirection.isZero()) {
+            float angle = (float) Math.toRadians(rotation + 90f);
+            dashDirection.set((float) Math.cos(angle), (float) Math.sin(angle));
+        }
+        
+        dashDirection.nor(); // Normalisiere den Richtungsvektor
+    }
+
+    public void dispose() {
+        playerTexture.dispose();
+        if (damageTakenSound != null) {
+            damageTakenSound.dispose();
+        }
+        if (deathSound != null) {
+            deathSound.dispose();
+        }
     }
 
     public void takeDamage(float amount) {
@@ -197,16 +246,6 @@ public class Player {
         this.position.set(x, y);
     }
 
-    public void dispose() {
-        playerTexture.dispose();
-        if (damageTakenSound != null) {
-            damageTakenSound.dispose();
-        }
-        if (deathSound != null) {
-            deathSound.dispose();
-        }
-    }
-
     public void addXP(int amount) {
         this.xp += amount;
         while (xp >= xpForNextLevel) {
@@ -242,5 +281,28 @@ public class Player {
 
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    private void updateFacingDirection() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY();
+        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
+        camera.unproject(mousePos);
+
+        float dx = mousePos.x - position.x;
+        float dy = mousePos.y - position.y;
+        float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
+        lastAngle = angle;
+
+        if (isWalking && (angle >= -45 && angle < 45 || angle >= 135 || angle < -135)) {
+            animationTimer += Gdx.graphics.getDeltaTime();
+            if (animationTimer >= ANIMATION_FRAME_DURATION) {
+                animationTimer = 0;
+            }
+        }
+    }
+
+    public float getDashCooldownTimer() {
+        return dashCooldownTimer;
     }
 }

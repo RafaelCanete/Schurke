@@ -117,6 +117,8 @@ public class StartScreen implements Screen {
         });
         stage.addActor(startButton);
         stage.addActor(closeButton);
+
+        // Stelle sicher, dass der Stage als Input Processor gesetzt ist
         Gdx.input.setInputProcessor(stage);
 
         // Lade und starte die Menü-Musik
@@ -133,13 +135,18 @@ public class StartScreen implements Screen {
         // Normalen Cursor anzeigen
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         // Starte die Musik wenn der Screen angezeigt wird
-        if (menuMusic != null) {
+        if (menuMusic != null && !menuMusic.isPlaying()) {
             menuMusic.play();
         }
     }
 
     @Override
     public void render(float delta) {
+        // Stelle sicher, dass der Input Processor während des Renderns gesetzt ist
+        if (Gdx.input.getInputProcessor() != stage) {
+            Gdx.input.setInputProcessor(stage);
+        }
+
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

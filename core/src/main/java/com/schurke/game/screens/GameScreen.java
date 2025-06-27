@@ -27,6 +27,7 @@ import com.schurke.game.entities.Player;
 import com.schurke.game.map.TileMap;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.ui.LevelBar;
+import com.schurke.game.ui.DashCooldownUI;
 import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
@@ -64,6 +65,8 @@ public class GameScreen implements Screen {
     private Texture cursorTexture;
     private Music gameMusic;
 
+    private DashCooldownUI dashCooldownUI;
+
     public GameScreen(Main game) {
         this.game = game;
         this.batch = game.getBatch();
@@ -100,10 +103,13 @@ public class GameScreen implements Screen {
 
         this.cursorTexture = new Texture(Gdx.files.internal("cursor/cursor_aim.png"));
 
+        // Initialisiere DashCooldownUI
+        this.dashCooldownUI = new DashCooldownUI(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         // Lade und starte die Hintergrundmusik
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music/ingame_music.mp3"));
         gameMusic.setLooping(true);
-        gameMusic.setVolume(0.5f); // 50% Lautstärke
+        gameMusic.setVolume(0.5f);
         gameMusic.play();
     }
 
@@ -192,16 +198,22 @@ public class GameScreen implements Screen {
         // Render the new level bar
         levelBar.render(shape, hudBatch);
 
-        // Cursor-Bild im UI-Layer (Screen-Koordinaten) zeichnen
-        batch.setProjectionMatrix(new com.badlogic.gdx.math.Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        batch.begin();
+        // Set up UI projection matrix for dash cooldown and cursor
+        hudBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        
+        // Render dash cooldown UI
+        hudBatch.begin();
+        dashCooldownUI.render(hudBatch, player.getDashCooldownTimer());
+        
+        // Render cursor (now in the same batch)
         int mx = Gdx.input.getX();
         int my = Gdx.graphics.getHeight() - Gdx.input.getY();
         float cx = mx - cursorTexture.getWidth() / 2f;
         float cy = my - cursorTexture.getHeight() / 2f;
-        batch.draw(cursorTexture, cx, cy);
-        batch.end();
-        // Batch-Projektion wieder auf Kamera zurücksetzen
+        hudBatch.draw(cursorTexture, cx, cy);
+        hudBatch.end();
+
+        // Reset projection matrix
         batch.setProjectionMatrix(camera.combined);
 
         if (player.isDead() && !gameOver) {
@@ -277,9 +289,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        viewport.update(width, height);
         uiViewport.update(width, height, true);
         levelBar.resize(width, height);
+        // Update dash cooldown UI position
+        this.dashCooldownUI = new DashCooldownUI(width, height);
     }
 
     @Override
@@ -302,6 +316,9 @@ public class GameScreen implements Screen {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             if (gameMusic != null) {
                 gameMusic.dispose();
+            }
+            if (dashCooldownUI != null) {
+                dashCooldownUI.dispose();
             }
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
