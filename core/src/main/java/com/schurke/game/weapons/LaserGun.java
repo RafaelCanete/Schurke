@@ -11,7 +11,7 @@ import com.schurke.game.combat.Bullet;
 import com.schurke.game.core.GameConfig;
 
 public class LaserGun implements Weapon {
-    private final Sound shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pistol/shoot.wav"));
+    private final Sound shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pistol/shoot.mp3"));
     private final Texture laserTexture = new Texture(Gdx.files.internal("projectile/projectile_laser.png"));
 
     private final float cooldown = 0.3f;

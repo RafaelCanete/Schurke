@@ -18,6 +18,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Cursor;
 
 public class StartScreen implements Screen {
     private Main game;
@@ -29,6 +31,10 @@ public class StartScreen implements Screen {
     private TextButton closeButton;
     private float startButtonYOffset = 230f; // Noch weiter nach unten
     private float exitButtonYOffset = 40f; // Wieder etwas höher
+    private float startButtonXOffset = 400f; // Nach links verschoben (erhöht von 300f)
+    private float exitButtonXOffset = 400f; // Nach rechts verschoben (erhöht von 300f)
+    private float buttonYOffset = 40f; // Gemeinsame Y-Position für beide Buttons
+    private Music menuMusic;
 
     public StartScreen(Main game) {
         this.game = game;
@@ -87,8 +93,8 @@ public class StartScreen implements Screen {
         // Create start button (wieder mittig, oben)
         this.startButton = new TextButton("Start Game", textButtonStyle);
         startButton.setSize(bw, bh);
-        startButton.setPosition(centerX - startButton.getWidth() / 2f,
-                        centerY + startButton.getHeight() / 2f + spacing / 2f - startButtonYOffset);
+        startButton.setPosition(centerX - startButton.getWidth() / 2f - startButtonXOffset,
+                        centerY - startButton.getHeight() / 2f - spacing / 2f - buttonYOffset);
 
         startButton.addListener(new ChangeListener() {
             @Override
@@ -100,8 +106,8 @@ public class StartScreen implements Screen {
         // Create close Game button (wieder mittig, unten)
         this.closeButton = new TextButton("Exit Game", textButtonStyle);
         closeButton.setSize(bw, bh);
-        closeButton.setPosition(centerX - closeButton.getWidth() / 2f,
-                        centerY - closeButton.getHeight() / 2f - spacing / 2f - exitButtonYOffset);
+        closeButton.setPosition(centerX - closeButton.getWidth() / 2f + exitButtonXOffset,
+                        centerY - closeButton.getHeight() / 2f - spacing / 2f - buttonYOffset);
 
         closeButton.addListener(new ChangeListener() {
             @Override
@@ -112,10 +118,24 @@ public class StartScreen implements Screen {
         stage.addActor(startButton);
         stage.addActor(closeButton);
         Gdx.input.setInputProcessor(stage);
+
+        // Lade und starte die Menü-Musik
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music/start_screen_music.mp3"));
+        menuMusic.setLooping(true);
+        menuMusic.setVolume(0.5f); // 50% Lautstärke
+        menuMusic.play();
     }
 
     @Override
     public void show() {
+        // Stelle sicher, dass der Input Processor korrekt gesetzt ist
+        Gdx.input.setInputProcessor(stage);
+        // Normalen Cursor anzeigen
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        // Starte die Musik wenn der Screen angezeigt wird
+        if (menuMusic != null) {
+            menuMusic.play();
+        }
     }
 
     @Override
@@ -142,6 +162,12 @@ public class StartScreen implements Screen {
 
     @Override
     public void hide() {
+        // Input Processor freigeben wenn Screen versteckt wird
+        Gdx.input.setInputProcessor(null);
+        // Stoppe die Musik wenn der Screen versteckt wird
+        if (menuMusic != null) {
+            menuMusic.stop();
+        }
     }
 
     @Override
@@ -150,6 +176,10 @@ public class StartScreen implements Screen {
         batch.dispose();
         font.dispose();
         backgroundTexture.dispose();
+        // Musik-Ressourcen freigeben
+        if (menuMusic != null) {
+            menuMusic.dispose();
+        }
         // Button-Textur entsorgen
         if (startButton.getStyle().up instanceof TextureRegionDrawable) {
             TextureRegion region = ((TextureRegionDrawable) startButton.getStyle().up).getRegion();
@@ -168,12 +198,12 @@ public class StartScreen implements Screen {
         // Re-center die Buttons mit Offset
         float spacing = 200f;
         startButton.setPosition(
-            width / 2f - startButton.getWidth() / 2f,
-            height / 2f + startButton.getHeight() / 2f + spacing / 2f - startButtonYOffset
+            width / 2f - startButton.getWidth() / 2f - startButtonXOffset,
+            height / 2f - startButton.getHeight() / 2f - spacing / 2f - buttonYOffset
         );
         closeButton.setPosition(
-            width / 2f - closeButton.getWidth() / 2f,
-            height / 2f - closeButton.getHeight() / 2f - spacing / 2f - exitButtonYOffset
+            width / 2f - closeButton.getWidth() / 2f + exitButtonXOffset,
+            height / 2f - closeButton.getHeight() / 2f - spacing / 2f - buttonYOffset
         );
     }
 }
