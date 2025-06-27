@@ -231,9 +231,18 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(image, 140, 210);
         map.render(batch);
+        batch.end();
+
+        // Draw blood stains and particles (under player/enemies)
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        enemyManager.renderBloodEffects(shape);
+        shape.end();
+
+        batch.begin();
         player.render(batch);
         enemyManager.render(batch, player);
         powerUpsManager.render(batch);
+        enemyManager.renderPopups(batch);
         batch.end();
 
         shape.begin(ShapeRenderer.ShapeType.Filled);
@@ -245,6 +254,24 @@ public class GameScreen implements Screen {
         shape.begin(ShapeRenderer.ShapeType.Filled);
         playerHealthBar.render(shape);
         shape.end();
+
+        // Render the level bar
+        levelBar.render(shape, hudBatch);
+
+        // Set up UI projection matrix for dash cooldown and cursor
+        hudBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        
+        // Render dash cooldown UI and cursor
+        hudBatch.begin();
+        dashCooldownUI.render(hudBatch, player.getDashCooldownTimer());
+        
+        // Render cursor
+        int mx = Gdx.input.getX();
+        int my = Gdx.graphics.getHeight() - Gdx.input.getY();
+        float cx = mx - cursorTexture.getWidth() / 2f;
+        float cy = my - cursorTexture.getHeight() / 2f;
+        hudBatch.draw(cursorTexture, cx, cy);
+        hudBatch.end();
     }
 
     private void renderHUD() {
@@ -259,7 +286,19 @@ public class GameScreen implements Screen {
         }
 
         if (player.isInvincible()) {
-            font.draw(hudBatch, "Invincible!", Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 40);
+            // Positioniere den Text unter der Level-Bar
+            float screenX = Gdx.graphics.getWidth() / 2f;
+            float screenY = Gdx.graphics.getHeight() - 60f; // 20px unter der Level-Bar
+            
+            // Zentriere den Text
+            String text = "Invincible!";
+            float textWidth = font.draw(hudBatch, text, 0, 0).width;
+            
+            // Zeichne den Text mit einem leichten Pulsieren
+            float alpha = (float) (0.6f + 0.4f * Math.sin(Gdx.graphics.getFrameId() * 0.1f));
+            font.setColor(1, 1, 1, alpha);
+            font.draw(hudBatch, text, screenX - textWidth / 2, screenY);
+            font.setColor(1, 1, 1, 1); // Setze die Farbe zurück
         }
 
         hudBatch.end();
