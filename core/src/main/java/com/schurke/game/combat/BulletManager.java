@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.schurke.game.entities.Enemy;
 import com.schurke.game.entities.EnemyManager;
 
@@ -16,16 +17,17 @@ public class BulletManager {
         this.enemyManager = enemyManager;
     }
 
-    public void updateAndRender(float delta, ShapeRenderer shape) {
+    public void updateAndRender(float delta, ShapeRenderer shape, SpriteBatch batch) {
         Iterator<Bullet> bulletIterator = bullets.iterator();
         while (bulletIterator.hasNext()) {
             Bullet bullet = bulletIterator.next();
             bullet.update(delta);
-            bullet.render(shape);
+            bullet.render(shape, batch);
 
             for (Enemy enemy : enemyManager.getEnemies()) {
                 if (bullet.collidesWith(enemy)) {
                     enemy.takeDamage(bullet.getDamage());
+                    enemyManager.hitEnemy(enemy);
                     bulletIterator.remove();
                     break;
                 }

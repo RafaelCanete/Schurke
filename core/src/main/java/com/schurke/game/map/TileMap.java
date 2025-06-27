@@ -6,21 +6,23 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TileMap {
     private static int tileSize = 64;
-    private static int mapWidth = 20;
-    private static int mapHeight = 15;
+    private static int mapWidth = 80;
+    private static int mapHeight = 60;
 
-    private Texture grassTexture;
+    private Texture mapTexture;
 
     public TileMap(){
-        grassTexture = new Texture(Gdx.files.internal("textures/grass1.png"));
-        grassTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        grassTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+        mapTexture = new Texture(Gdx.files.internal("textures/map1.png"));
+        mapTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        mapTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
     }
 
-public void render(SpriteBatch batch){
-        for (int y=0; y<mapHeight;y++){
-            for (int x=0; x<mapWidth;x++){
-                batch.draw(grassTexture,x*tileSize,y*tileSize);
+    public void render(SpriteBatch batch){
+        int tileW = mapTexture.getWidth();
+        int tileH = mapTexture.getHeight();
+        for (int y = 0; y < mapHeight * tileSize; y += tileH) {
+            for (int x = 0; x < mapWidth * tileSize; x += tileW) {
+                batch.draw(mapTexture, x, y, tileW, tileH);
             }
         }
     }
@@ -34,7 +36,7 @@ public void render(SpriteBatch batch){
     }
 
     public void dispose() {
-        grassTexture.dispose();
+        mapTexture.dispose();
     }
 
     public  int getMapHeight(){

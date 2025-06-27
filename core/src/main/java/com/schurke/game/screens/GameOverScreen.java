@@ -2,126 +2,127 @@ package com.schurke.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.schurke.game.Main;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Cursor;
 
 public class GameOverScreen implements Screen {
-    private Main game;
-    private Stage stage;
-    private SpriteBatch batch;
-    private BitmapFont font;
-    private BitmapFont titleFont;
+    private final Main game;
+    private final SpriteBatch batch;
+    private final BitmapFont font;
+    private final Stage stage;
+    private final GlyphLayout layout;
+    private final ShapeRenderer shapeRenderer;
+    private final GameScreen gameScreen;
 
-    public GameOverScreen(Main game) {
-        try {
-            this.game = game;
-            this.batch = new SpriteBatch();
-            stage = new Stage(new ScreenViewport());
+    public GameOverScreen(Main game, GameScreen gameScreen) {
+        this.game = game;
+        this.gameScreen = gameScreen;
+        this.batch = new SpriteBatch();
+        this.font = new BitmapFont();
+        this.font.getData().setScale(3.0f);
+        this.font.setColor(Color.RED);
+        this.stage = new Stage(new ScreenViewport());
+        this.layout = new GlyphLayout();
+        this.shapeRenderer = new ShapeRenderer();
 
-            // Create fonts
-            font = new BitmapFont();
-            font.getData().setScale(2.0f);
-            titleFont = new BitmapFont();
-            titleFont.getData().setScale(3.0f);
-            titleFont.setColor(Color.RED);
+        // Calculate center position
+        float centerX = Gdx.graphics.getWidth() / 2f;
+        float centerY = Gdx.graphics.getHeight() / 2f;
+        float spacing = 100f;
 
-            // Create button style
-            TextButtonStyle textButtonStyle = new TextButtonStyle();
-            textButtonStyle.font = font;
-            textButtonStyle.fontColor = Color.WHITE;
-            textButtonStyle.downFontColor = Color.LIGHT_GRAY;
+        // Create button style with just the font and color, no background
+        TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.font = font;
+        textButtonStyle.fontColor = Color.RED;
+        // Add a slightly brighter color for hover effect
+        textButtonStyle.overFontColor = Color.PINK;
 
-            // Create label style for title
-            LabelStyle labelStyle = new LabelStyle(titleFont, Color.RED);
+        // Create label style for "Game Over" text
+        LabelStyle labelStyle = new LabelStyle(font, Color.RED);
 
-            // Create table for layout
-            Table table = new Table();
-            table.setFillParent(true);
+        // Create table for layout
+        Table table = new Table();
+        table.setFillParent(true);
 
-            // Create title label
-            Label titleLabel = new Label("Game Over!", labelStyle);
+        // Create "Game Over" label
+        Label gameOverLabel = new Label("Game Over", labelStyle);
 
-            // Create restart button
-            TextButton restartButton = new TextButton("Restart Game", textButtonStyle);
-            restartButton.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    try {
-                        dispose();
-                        game.startGame();
-                    } catch (Exception e) {
-                        Gdx.app.error("GameOverScreen", "Error restarting game", e);
-                    }
-                }
-            });
+        // Create buttons
+        TextButton restartButton = new TextButton("Restart Game", textButtonStyle);
+        restartButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
+        });
 
-            // Create exit button
-            TextButton backToMenu = new TextButton("Back", textButtonStyle);
-            backToMenu.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    try {
-                        dispose();
-                        game.setScreen(new StartScreen(game));
-                    } catch (Exception e) {
-                        Gdx.app.error("GameOverScreen", "Error returning to start screen", e);
-                    }
-                }
-            });
+        TextButton menuButton = new TextButton("Back to Menu", textButtonStyle);
+        menuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Cursor zurücksetzen und Input Processor freigeben
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                Gdx.input.setInputProcessor(null);
+                game.setScreen(new StartScreen(game));
+                dispose();
+            }
+        });
 
-            // close game button
-            TextButton closeGameButton = new TextButton("Close Game", textButtonStyle);
-            closeGameButton.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    try {
-                        dispose();
-                        Gdx.app.exit();
-                    } catch (Exception e) {
-                        Gdx.app.error("GameOverScreen", "Error returning to start screen", e);
-                    }
-                }
-            });
+        TextButton exitButton = new TextButton("Exit Game", textButtonStyle);
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
 
-            // Add widgets to table with spacing
-            table.add(titleLabel).padBottom(50).row();
-            table.add(restartButton).pad(10).row();
-            table.add(backToMenu).pad(10).row();
-            table.add(closeGameButton).pad(10);
+        // Add buttons to table with spacing
+        table.add(gameOverLabel).padBottom(spacing).row();
+        table.add(restartButton).padBottom(20).row();
+        table.add(menuButton).padBottom(20).row();
+        table.add(exitButton).row();
 
-            stage.addActor(table);
-            Gdx.input.setInputProcessor(stage);
-
-        } catch (Exception e) {
-            Gdx.app.error("GameOverScreen", "Error initializing game over screen", e);
-            throw e; // Rethrow to ensure the error is not silently swallowed
-        }
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void render(float delta) {
-        try {
-            Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-            stage.act(Math.min(delta, 1/30f)); // Cap delta time to prevent huge jumps
-            stage.draw();
-
-        } catch (Exception e) {
-            Gdx.app.error("GameOverScreen", "Error in render", e);
+        // Render the game screen in the background
+        if (gameScreen != null) {
+            gameScreen.renderWithoutUpdate();
         }
+
+        // Add semi-transparent overlay
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0, 0, 0, 0.7f);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        // Draw the stage with buttons
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -147,13 +148,9 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void dispose() {
-        try {
-            if (stage != null) stage.dispose();
-            if (batch != null) batch.dispose();
-            if (font != null) font.dispose();
-            if (titleFont != null) titleFont.dispose();
-        } catch (Exception e) {
-            Gdx.app.error("GameOverScreen", "Error disposing resources", e);
-        }
+        batch.dispose();
+        font.dispose();
+        stage.dispose();
+        shapeRenderer.dispose();
     }
 }
