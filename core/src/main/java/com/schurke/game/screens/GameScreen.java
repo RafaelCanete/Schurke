@@ -88,6 +88,12 @@ public class GameScreen implements Screen {
     private float weaponUnlockMessageTimer = 0f;
     private static final float WEAPON_UNLOCK_MSG_DURATION = 3.0f;
 
+    // Add fields for Q ability unlock notification
+    private boolean qAbilityUnlocked = false;
+    private boolean showQUnlockMsg = false;
+    private float qUnlockMsgTimer = 0f;
+    private static final float Q_UNLOCK_MSG_DURATION = 3.0f;
+
     public GameScreen(Main game) {
         this.game = game;
         this.batch = game.getBatch();
@@ -241,6 +247,17 @@ public class GameScreen implements Screen {
                     combatController.setWeapon(weaponInventory.getEquippedWeapon());
                 }
             }
+
+            // Q ability logic
+            if (!qAbilityUnlocked && player.getLevel() >= 10) {
+                qAbilityUnlocked = true;
+                showQUnlockMsg = true;
+                qUnlockMsgTimer = Q_UNLOCK_MSG_DURATION;
+            }
+            if (showQUnlockMsg) {
+                qUnlockMsgTimer -= delta;
+                if (qUnlockMsgTimer <= 0) showQUnlockMsg = false;
+            }
         }
         shape.end();
 
@@ -265,7 +282,9 @@ public class GameScreen implements Screen {
         dashCooldownUI.render(hudBatch, player.getDashCooldownTimer());
 
         // Render laser burst cooldown UI
-        laserBurstCooldownUI.render(hudBatch, combatController.getLaserBurstCooldown(), combatController.isLaserBurstReloading());
+        if (qAbilityUnlocked) {
+            laserBurstCooldownUI.render(hudBatch, combatController.getLaserBurstCooldown(), combatController.isLaserBurstReloading());
+        }
 
         // Render cursor (now in the same batch)
         int mx = Gdx.input.getX();
@@ -386,6 +405,18 @@ public class GameScreen implements Screen {
             float textWidth = font.draw(hudBatch, text, 0, 0).width;
             float alpha = (float) (0.7f + 0.3f * Math.sin(Gdx.graphics.getFrameId() * 0.15f));
             font.setColor(1f, 0.8f, 0.2f, alpha); // Orange for weapon unlock
+            font.draw(hudBatch, text, screenX - textWidth / 2, screenY);
+            font.setColor(1, 1, 1, 1);
+        }
+
+        // In renderHUD, after orb/weapon unlock messages, show Q unlock message if present
+        if (showQUnlockMsg) {
+            float screenX = Gdx.graphics.getWidth() / 2f;
+            float screenY = Gdx.graphics.getHeight() / 2f + 30f;
+            String text = "Unlocked Burst Shot!";
+            float textWidth = font.draw(hudBatch, text, 0, 0).width;
+            float alpha = (float) (0.7f + 0.3f * Math.sin(Gdx.graphics.getFrameId() * 0.15f));
+            font.setColor(0.4f, 1f, 0.7f, alpha); // Greenish for Q unlock
             font.draw(hudBatch, text, screenX - textWidth / 2, screenY);
             font.setColor(1, 1, 1, 1);
         }

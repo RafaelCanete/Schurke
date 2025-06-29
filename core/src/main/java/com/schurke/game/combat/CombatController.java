@@ -44,8 +44,8 @@ public class CombatController {
             shootCooldown = weapon.getCooldown();
         }
 
-        // Laser burst ability with Q key
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && laserBurst.hasAmmo()) {
+        // Laser burst ability with Q key (only if player level >= 10)
+        if (player.getLevel() >= 10 && Gdx.input.isKeyJustPressed(Input.Keys.Q) && laserBurst.hasAmmo()) {
             Vector2 centerDir = new Vector2(1, 0); // Direction doesn't matter for burst
             List<Bullet> burstBullets = laserBurst.shoot(player.getPosition(), centerDir);
             bullets.addAll(burstBullets);
