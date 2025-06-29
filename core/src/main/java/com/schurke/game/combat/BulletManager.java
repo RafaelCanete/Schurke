@@ -24,13 +24,34 @@ public class BulletManager {
             bullet.update(delta);
             bullet.render(shape, batch);
 
-            for (Enemy enemy : enemyManager.getEnemies()) {
-                if (bullet.collidesWith(enemy)) {
-                    enemy.takeDamage(bullet.getDamage());
-                    enemyManager.hitEnemy(enemy);
-                    bulletIterator.remove();
-                    break;
+            boolean hitEnemy = false;
+            if (bullet.isPiercing()) {
+                // For piercing bullets, hit all enemies in range, but do not remove bullet here
+                for (Enemy enemy : enemyManager.getEnemies()) {
+                    if (bullet.collidesWith(enemy)) {
+                        enemy.takeDamage(bullet.getDamage());
+                        enemyManager.hitEnemy(enemy);
+                        hitEnemy = true;
+                    }
                 }
+            } else {
+                // For non-piercing bullets, remove after first hit
+                for (Enemy enemy : enemyManager.getEnemies()) {
+                    if (bullet.collidesWith(enemy)) {
+                        enemy.takeDamage(bullet.getDamage());
+                        enemyManager.hitEnemy(enemy);
+                        hitEnemy = true;
+                        break;
+                    }
+                }
+                if (hitEnemy) {
+                    bulletIterator.remove();
+                    continue;
+                }
+            }
+            // Remove any bullet that is expired
+            if (bullet.isExpired()) {
+                bulletIterator.remove();
             }
         }
     }

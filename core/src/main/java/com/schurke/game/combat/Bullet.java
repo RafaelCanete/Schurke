@@ -14,18 +14,24 @@ public class Bullet {
     private float lifetime;
     private float speed;
     private Texture texture; // Optional
+    private boolean piercing; // Whether the bullet can pierce through enemies
 
     public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime) {
-        this(position, direction, speed, damage, size, lifetime, null);
+        this(position, direction, speed, damage, size, lifetime, null, false);
     }
 
     public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime, Texture texture) {
+        this(position, direction, speed, damage, size, lifetime, texture, false);
+    }
+
+    public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime, Texture texture, boolean piercing) {
         this.position = new Vector2(position);
         this.velocity = new Vector2(direction).nor().scl(speed);
         this.damage = damage;
         this.size = size;
         this.lifetime = lifetime;
         this.texture = texture;
+        this.piercing = piercing;
     }
 
     public void update(float delta) {
@@ -78,6 +84,10 @@ public class Bullet {
 
     public float getDamage() {
         return damage;
+    }
+
+    public boolean isPiercing() {
+        return piercing;
     }
 
     public boolean isExpired() {

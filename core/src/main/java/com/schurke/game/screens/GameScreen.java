@@ -23,11 +23,13 @@ import com.schurke.game.combat.CombatController;
 import com.schurke.game.combat.RoundManager;
 import com.schurke.game.core.GameConfig;
 import com.schurke.game.entities.EnemyManager;
+import com.schurke.game.entities.OrbManager;
 import com.schurke.game.entities.Player;
 import com.schurke.game.map.TileMap;
 import com.schurke.game.ui.HealthBar;
 import com.schurke.game.ui.LevelBar;
 import com.schurke.game.ui.DashCooldownUI;
+import com.schurke.game.ui.LaserBurstCooldownUI;
 import com.schurke.game.weapons.LaserGun;
 import com.schurke.game.weapons.Weapon;
 import com.schurke.game.PowerUps.PowerUpsManager;
@@ -47,6 +49,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private Viewport uiViewport;
     private EnemyManager enemyManager;
+    private OrbManager orbManager;
     private boolean gameOver;
     private float deathTimer;
     private static final float DEATH_DELAY = 0.5f;
@@ -66,6 +69,7 @@ public class GameScreen implements Screen {
     private Music gameMusic;
 
     private DashCooldownUI dashCooldownUI;
+    private LaserBurstCooldownUI laserBurstCooldownUI;
 
     public GameScreen(Main game) {
         this.game = game;
@@ -86,6 +90,7 @@ public class GameScreen implements Screen {
         this.uiViewport.apply();
 
         this.enemyManager = new EnemyManager(map);
+        this.orbManager = new OrbManager();
         this.playerHealthBar = new HealthBar(player, 20f);
         this.image = new Texture("libgdx.png");
         this.font = new BitmapFont();
@@ -105,6 +110,9 @@ public class GameScreen implements Screen {
 
         // Initialisiere DashCooldownUI
         this.dashCooldownUI = new DashCooldownUI(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // Initialize LaserBurstCooldownUI
+        this.laserBurstCooldownUI = new LaserBurstCooldownUI(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Lade und starte die Hintergrundmusik
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/background_music/ingame_music.mp3"));
@@ -169,6 +177,7 @@ public class GameScreen implements Screen {
         // Draw health bars (over everything)
         shape.begin(ShapeRenderer.ShapeType.Filled);
         enemyManager.renderHealthBars(shape);
+        orbManager.render(shape);
         shape.end();
 
         // Update game logic and draw health bars
@@ -176,6 +185,8 @@ public class GameScreen implements Screen {
         if (!gameOver) {
             roundManager.update(player);
             enemyManager.update(player);
+            orbManager.update(delta, player.getPosition(), enemyManager.getEnemies());
+            orbManager.checkLevelUpgrade(player.getLevel());
             player.update(map);
             combatController.update(delta);
             bulletManager.updateAndRender(delta, shape, batch);
@@ -200,11 +211,14 @@ public class GameScreen implements Screen {
 
         // Set up UI projection matrix for dash cooldown and cursor
         hudBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        
+
         // Render dash cooldown UI
         hudBatch.begin();
         dashCooldownUI.render(hudBatch, player.getDashCooldownTimer());
-        
+
+        // Render laser burst cooldown UI
+        laserBurstCooldownUI.render(hudBatch, combatController.getLaserBurstCooldown(), combatController.isLaserBurstReloading());
+
         // Render cursor (now in the same batch)
         int mx = Gdx.input.getX();
         int my = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -260,11 +274,14 @@ public class GameScreen implements Screen {
 
         // Set up UI projection matrix for dash cooldown and cursor
         hudBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        
+
         // Render dash cooldown UI and cursor
         hudBatch.begin();
         dashCooldownUI.render(hudBatch, player.getDashCooldownTimer());
-        
+
+        // Render laser burst cooldown UI
+        laserBurstCooldownUI.render(hudBatch, combatController.getLaserBurstCooldown(), combatController.isLaserBurstReloading());
+
         // Render cursor
         int mx = Gdx.input.getX();
         int my = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -289,14 +306,30 @@ public class GameScreen implements Screen {
             // Positioniere den Text unter der Level-Bar
             float screenX = Gdx.graphics.getWidth() / 2f;
             float screenY = Gdx.graphics.getHeight() - 60f; // 20px unter der Level-Bar
-            
+
             // Zentriere den Text
             String text = "Invincible!";
             float textWidth = font.draw(hudBatch, text, 0, 0).width;
-            
+
             // Zeichne den Text mit einem leichten Pulsieren
             float alpha = (float) (0.6f + 0.4f * Math.sin(Gdx.graphics.getFrameId() * 0.1f));
             font.setColor(1, 1, 1, alpha);
+            font.draw(hudBatch, text, screenX - textWidth / 2, screenY);
+            font.setColor(1, 1, 1, 1); // Setze die Farbe zurück
+        }
+
+        // Render orb unlock message
+        if (orbManager.shouldShowUnlockMessage()) {
+            float screenX = Gdx.graphics.getWidth() / 2f;
+            float screenY = Gdx.graphics.getHeight() / 2f + 100f; // Center of screen, slightly above
+
+            // Zentriere den Text
+            String text = "You unlocked the protecting orb!";
+            float textWidth = font.draw(hudBatch, text, 0, 0).width;
+
+            // Zeichne den Text mit einem leichten Pulsieren
+            float alpha = (float) (0.7f + 0.3f * Math.sin(Gdx.graphics.getFrameId() * 0.15f));
+            font.setColor(0.4f, 0.8f, 1.0f, alpha); // Blue color for orb message
             font.draw(hudBatch, text, screenX - textWidth / 2, screenY);
             font.setColor(1, 1, 1, 1); // Setze die Farbe zurück
         }
@@ -333,6 +366,8 @@ public class GameScreen implements Screen {
         levelBar.resize(width, height);
         // Update dash cooldown UI position
         this.dashCooldownUI = new DashCooldownUI(width, height);
+        // Update laser burst cooldown UI position
+        this.laserBurstCooldownUI = new LaserBurstCooldownUI(width, height);
     }
 
     @Override
@@ -351,6 +386,7 @@ public class GameScreen implements Screen {
             if (player != null) player.dispose();
             if (powerUpsManager != null) powerUpsManager.dispose();
             if (cursorTexture != null) cursorTexture.dispose();
+            if (combatController != null) combatController.dispose();
             // Cursor zurücksetzen
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             if (gameMusic != null) {
@@ -358,6 +394,9 @@ public class GameScreen implements Screen {
             }
             if (dashCooldownUI != null) {
                 dashCooldownUI.dispose();
+            }
+            if (laserBurstCooldownUI != null) {
+                laserBurstCooldownUI.dispose();
             }
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
