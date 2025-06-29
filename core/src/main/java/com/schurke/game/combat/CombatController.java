@@ -12,7 +12,7 @@ import com.schurke.game.weapons.Weapon;
 import com.schurke.game.weapons.LaserBurst;
 
 public class CombatController {
-    private final Weapon weapon;
+    private Weapon weapon;
     private final LaserBurst laserBurst;
     private final Player player;
     private final OrthographicCamera camera;
@@ -67,5 +67,9 @@ public class CombatController {
 
     public boolean isLaserBurstReloading() {
         return laserBurst.isReloading();
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
     }
 }

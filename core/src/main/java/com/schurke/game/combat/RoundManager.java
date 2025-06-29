@@ -10,11 +10,11 @@ public class RoundManager {
     private float spawnTimer = 0f;
     private float currentSpawnInterval = 1.8f; // Start with 1.8 seconds between spawns
     private Random random;
-    
+
     // Scaling parameters
     private static final float BASE_SPAWN_INTERVAL = 1.8f;
     private static final float INTERVAL_DECREASE_PER_LEVEL = 0.06f; // Faster decrease per level
-    private static final float MIN_SPAWN_INTERVAL = 0.3f; // Even faster minimum spawn rate
+    private static final float MIN_SPAWN_INTERVAL = 0.7f; // Higher minimum for high levels
 
     public RoundManager(EnemyManager enemyManager) {
         this.enemyManager = enemyManager;
@@ -26,10 +26,10 @@ public class RoundManager {
     public void update(Player player) {
         float delta = Gdx.graphics.getDeltaTime();
         spawnTimer += delta;
-        
+
         // Update spawn rate based on player level
         updateSpawnRate(player.getLevel());
-        
+
         // Spawn enemies when timer is ready
         if (spawnTimer >= currentSpawnInterval) {
             // Spawn more enemies at higher levels, more aggressive for big map
@@ -38,11 +38,16 @@ public class RoundManager {
             spawnTimer = 0f;
         }
     }
-    
+
     private void updateSpawnRate(int level) {
         // Decrease spawn interval based on player level
         float newInterval = BASE_SPAWN_INTERVAL - (level - 1) * INTERVAL_DECREASE_PER_LEVEL;
-        currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, newInterval);
+        // After level 25, slow down spawn rate increase
+        if (level >= 25) {
+            currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, newInterval + (level - 24) * 0.04f);
+        } else {
+            currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, newInterval);
+        }
     }
 
     public boolean isRoundStarting() {
@@ -57,19 +62,19 @@ public class RoundManager {
     public int getCountdownNumber() {
         return 0; // No more countdown
     }
-    
+
     public float getGameTime() {
         return spawnTimer;
     }
-    
+
     public boolean isWaveActive() {
         return false; // No more wave system
     }
-    
+
     public int getEnemiesInWave() {
         return 0; // No more wave system
     }
-    
+
     public int getEnemiesSpawned() {
         return 0; // No more wave system
     }

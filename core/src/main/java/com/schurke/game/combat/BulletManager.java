@@ -26,16 +26,16 @@ public class BulletManager {
 
             boolean hitEnemy = false;
             if (bullet.isPiercing()) {
-                // For piercing bullets, hit all enemies in range, but do not remove bullet here
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (bullet.collidesWith(enemy)) {
                         enemy.takeDamage(bullet.getDamage());
                         enemyManager.hitEnemy(enemy);
+                        bullet.incrementPierce();
                         hitEnemy = true;
+                        if (bullet.isExpired()) break;
                     }
                 }
             } else {
-                // For non-piercing bullets, remove after first hit
                 for (Enemy enemy : enemyManager.getEnemies()) {
                     if (bullet.collidesWith(enemy)) {
                         enemy.takeDamage(bullet.getDamage());
@@ -49,7 +49,6 @@ public class BulletManager {
                     continue;
                 }
             }
-            // Remove any bullet that is expired
             if (bullet.isExpired()) {
                 bulletIterator.remove();
             }

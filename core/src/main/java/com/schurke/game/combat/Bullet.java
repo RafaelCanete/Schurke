@@ -15,16 +15,19 @@ public class Bullet {
     private float speed;
     private Texture texture; // Optional
     private boolean piercing; // Whether the bullet can pierce through enemies
+    private int maxPierce; // How many enemies it can pierce
+    private int pierceCount; // How many it has pierced
+    private boolean useTexture;
 
     public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime) {
-        this(position, direction, speed, damage, size, lifetime, null, false);
+        this(position, direction, speed, damage, size, lifetime, null, false, 0, false);
     }
 
     public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime, Texture texture) {
-        this(position, direction, speed, damage, size, lifetime, texture, false);
+        this(position, direction, speed, damage, size, lifetime, texture, false, 0, true);
     }
 
-    public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime, Texture texture, boolean piercing) {
+    public Bullet(Vector2 position, Vector2 direction, float speed, float damage, float size, float lifetime, Texture texture, boolean piercing, int maxPierce, boolean useTexture) {
         this.position = new Vector2(position);
         this.velocity = new Vector2(direction).nor().scl(speed);
         this.damage = damage;
@@ -32,6 +35,9 @@ public class Bullet {
         this.lifetime = lifetime;
         this.texture = texture;
         this.piercing = piercing;
+        this.maxPierce = maxPierce;
+        this.pierceCount = 0;
+        this.useTexture = useTexture;
     }
 
     public void update(float delta) {
@@ -40,8 +46,7 @@ public class Bullet {
     }
 
     public void render(ShapeRenderer shape, SpriteBatch batch) {
-        if (texture != null) {
-            // Mit Textur rendern
+        if (useTexture && texture != null) {
             float angle = (float)Math.toDegrees(Math.atan2(velocity.y, velocity.x));
             batch.begin();
             batch.draw(texture,
@@ -56,7 +61,6 @@ public class Bullet {
             );
             batch.end();
         } else {
-            // Standard-ShapeRenderer
             float angle = (float)Math.toDegrees(Math.atan2(velocity.y, velocity.x));
             shape.identity();
             shape.translate(position.x, position.y, 0);
@@ -64,7 +68,7 @@ public class Bullet {
             // Outline
             shape.setColor(0.2f, 0.1f, 0f, 1f);
             shape.ellipse(-size * 1.2f, -size * 0.5f, size * 2.4f, size, 32);
-            // Kern
+            // Core
             shape.setColor(1f, 0.8f, 0.2f, 1f);
             shape.ellipse(-size, -size * 0.35f, size * 2f, size * 0.7f, 32);
             shape.identity();
@@ -91,10 +95,16 @@ public class Bullet {
     }
 
     public boolean isExpired() {
-        return lifetime <= 0f;
+        return lifetime <= 0f || (piercing && maxPierce > 0 && pierceCount >= maxPierce);
     }
 
     public Vector2 getPosition() {
         return position;
+    }
+
+    public void incrementPierce() {
+        if (piercing && maxPierce > 0) {
+            pierceCount++;
+        }
     }
 }

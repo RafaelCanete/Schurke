@@ -40,7 +40,7 @@ public class LaserBurst implements Weapon {
                 (float) Math.sin(radians)
             );
 
-            bullets.add(new Bullet(position, shootDir, speed, damage, size, lifetime, laserTexture, true)); // true for piercing
+            bullets.add(new Bullet(position, shootDir, speed, damage, size, lifetime, laserTexture, true, 0, true));
         }
 
         burstSound.play(0.7f);

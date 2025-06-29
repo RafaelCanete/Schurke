@@ -8,29 +8,25 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.schurke.game.combat.Bullet;
-import com.schurke.game.core.GameConfig;
 
-public class Shotgun implements Weapon {
+public class AssaultRifle implements Weapon {
     private final Sound shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/shotgun/shoot.wav"));
     private final Texture bulletTexture = new Texture(Gdx.files.internal("projectile/projectile_laser.png"));
-    private final float cooldown = 1.2f;
-    private final float damage = 40f;
-    private final int pellets = 5;
-    private final float spread = 10f;
+    private final float cooldown = 0.08f; // Fast fire rate
+    private final float damage = 30f;
+    private final int pellets = 1; // Single bullet per shot
 
     @Override
     public List<Bullet> shoot(Vector2 position, Vector2 direction) {
         List<Bullet> bullets = new ArrayList<>();
-        float speed = 700f;
-        float size = 8f;
-        float lifetime = 1.0f;
-        int maxPierce = 3;
+        float speed = 900f;
+        float size = 7f; // Much smaller
+        float lifetime = 1.2f;
+        float damage = 80f; // Increased damage
         for (int i = 0; i < pellets; i++) {
-            float angle = (float) Math.atan2(direction.y, direction.x) + (float) Math.toRadians((i - pellets / 2f) * spread);
-            Vector2 pelletDir = new Vector2((float) Math.cos(angle), (float) Math.sin(angle));
-            bullets.add(new Bullet(position, pelletDir, speed, damage, size, lifetime, null, true, maxPierce, false));
+            bullets.add(new Bullet(position, direction, speed, damage, size, lifetime, null, false, 0, false));
         }
-        shootSound.play(0.7f);
+        shootSound.play(0.5f);
         return bullets;
     }
 
@@ -56,7 +52,5 @@ public class Shotgun implements Weapon {
     }
 
     @Override
-    public void update(float delta) {
-    }
-
+    public void update(float delta) {}
 }
