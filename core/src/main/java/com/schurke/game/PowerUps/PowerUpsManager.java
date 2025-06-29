@@ -17,9 +17,9 @@ public class PowerUpsManager {
     private Random random;
 
     // Spawn control
-    private static final float BASE_SPAWN_CHANCE = 0.1f; // 10% base chance
-    private static final float SPAWN_CHANCE_INCREASE_PER_LEVEL = 0.02f; // 2% increase per level
-    private static final float SPAWN_CHECK_INTERVAL = 5f; // Check to spawn a power-up every 5 seconds
+    private static final float BASE_SPAWN_CHANCE = 0.18f; // 18% base chance
+    private static final float SPAWN_CHANCE_INCREASE_PER_LEVEL = 0.035f; // 3.5% increase per level
+    private static final float SPAWN_CHECK_INTERVAL = 3.5f; // Check to spawn a power-up every 3.5 seconds
 
     public PowerUpsManager(TileMap map) {
         this.map = map;
