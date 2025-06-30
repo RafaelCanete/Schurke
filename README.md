@@ -1,33 +1,52 @@
 # Schurke
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Schurke ist ein actionreiches Top-Down-Survival-Spiel, entwickelt mit [libGDX](https://libgdx.com/).
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+## Spielbeschreibung
 
-## Platforms
+Du steuerst einen Helden, der sich durch endlose Gegnerwellen kämpft. Überlebe so lange wie möglich, sammle Erfahrung, steige im Level auf und schalte neue Fähigkeiten und Waffen frei. Nutze Powerups, um länger zu überleben und deine Chancen zu verbessern!
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+## Features
+- **Dynamische Gegnerwellen**: Mit jedem Level steigen Schwierigkeit und Gegnerzahl.
+- **Waffen-Inventar**: Verschiedene Waffen (Laserpistole, Schrotflinte, Sturmgewehr) können per 1-9 ausgewählt werden. Neue Waffen werden mit höheren Leveln freigeschaltet.
+- **Fähigkeiten**:
+  - **Dash (Leertaste)**: Schneller Ausweich-Move mit Cooldown.
+  - **Schutz-Orb**: Ab Level 15 kreist ein schützender Orb um den Spieler und schadet Gegnern.
+  - **Burst Shot (Q)**: Ab Level 10 kann eine Spezialfähigkeit ausgelöst werden, die Laser in alle Richtungen abfeuert (mit Cooldown).
+- **Powerups**: Heile dich mit Powerups, die regelmäßig auf der Karte erscheinen (häufiger auf höheren Leveln).
+- **Level- und XP-Anzeige**: Oben im UI, modern und übersichtlich.
+- **Waffen-UI**: Unten links, zeigt freigeschaltete Waffen mit Icons und Slotnummern.
 
-## Gradle
+## Steuerung
+- **WASD**: Bewegung
+- **Maus**: Zielen
+- **Linke Maustaste**: Schießen
+- **Leertaste**: Dash
+- **Q**: Burst Shot (ab Level 10)
+- **1-9**: Waffe auswählen (sofern freigeschaltet)
+- **ESC**: Pausemenü
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+## Freischaltbare Inhalte
+- **Schrotflinte**: Ab Level 5 (Slot 2)
+- **Burst Shot (Q)**: Ab Level 10
+- **Schutz-Orb**: Ab Level 15
+- **Sturmgewehr**: Ab Level 20 (Slot 3)
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+## Build & Run
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+This project uses [Gradle](https://gradle.org/) for building and running.
+
+**To run the game on desktop:**
+```sh
+./gradlew lwjgl3:run
+```
+
+**To build a runnable JAR:**
+```sh
+./gradlew lwjgl3:jar
+```
+The JAR will be in `lwjgl3/build/libs`.
+
+---
+
+Viel Spaß beim Überleben in Schurke!
