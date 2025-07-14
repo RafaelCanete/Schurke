@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Cursor;
+import com.schurke.game.core.HighscoreManager;
 
 public class StartScreen implements Screen {
     private Main game;
@@ -35,6 +36,8 @@ public class StartScreen implements Screen {
     private float exitButtonXOffset = 400f; // Nach rechts verschoben (erhöht von 300f)
     private float buttonYOffset = 40f; // Gemeinsame Y-Position für beide Buttons
     private Music menuMusic;
+    private int highscore;
+    private int highscoreLevel;
 
     public StartScreen(Main game) {
         this.game = game;
@@ -126,6 +129,10 @@ public class StartScreen implements Screen {
         menuMusic.setLooping(true);
         menuMusic.setVolume(0.5f); // 50% Lautstärke
         menuMusic.play();
+
+        HighscoreManager.load();
+        this.highscore = HighscoreManager.getHighscore();
+        this.highscoreLevel = HighscoreManager.getHighscoreLevel();
     }
 
     @Override
@@ -153,6 +160,16 @@ public class StartScreen implements Screen {
         // Draw background
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Draw highscore at top center, purple, scale 2.5f
+        font.getData().setScale(2.5f);
+        font.setColor(new Color(0.6f, 0.3f, 0.8f, 1f));
+        String highscoreText = "Highscore: " + highscore + " (Level " + highscoreLevel + ")";
+        float textWidth = font.getRegion().getRegionWidth();
+        float x = Gdx.graphics.getWidth() / 2f - textWidth / 2f;
+        float y = Gdx.graphics.getHeight() - 80f;
+        font.draw(batch, highscoreText, x, y);
+        font.getData().setScale(3.0f);
+        font.setColor(Color.RED);
         batch.end();
 
         stage.act(delta);

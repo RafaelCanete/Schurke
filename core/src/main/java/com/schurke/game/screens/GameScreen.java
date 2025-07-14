@@ -39,6 +39,7 @@ import com.badlogic.gdx.audio.Music;
 import com.schurke.game.weapons.WeaponInventory;
 import com.schurke.game.weapons.Shotgun;
 import com.schurke.game.weapons.AssaultRifle;
+import com.schurke.game.core.HighscoreManager;
 
 public class GameScreen implements Screen {
     private Main game;
@@ -94,6 +95,9 @@ public class GameScreen implements Screen {
     private float qUnlockMsgTimer = 0f;
     private static final float Q_UNLOCK_MSG_DURATION = 3.0f;
 
+    private int highscore;
+    private int highscoreLevel;
+
     public GameScreen(Main game) {
         this.game = game;
         this.batch = game.getBatch();
@@ -146,6 +150,10 @@ public class GameScreen implements Screen {
         gameMusic.setLooping(true);
         gameMusic.setVolume(0.5f);
         gameMusic.play();
+
+        HighscoreManager.load();
+        this.highscore = HighscoreManager.getHighscore();
+        this.highscoreLevel = HighscoreManager.getHighscoreLevel();
     }
 
     @Override
@@ -156,7 +164,7 @@ public class GameScreen implements Screen {
         if (gameOver) {
             deathTimer += delta;
             if (deathTimer >= DEATH_DELAY) {
-                game.setScreen(new GameOverScreen(game, this));
+                game.setScreen(new GameOverScreen(game, this, highscore, highscoreLevel));
                 return;
             }
         }
@@ -303,6 +311,11 @@ public class GameScreen implements Screen {
         if (player.isDead() && !gameOver) {
             gameOver = true;
             deathTimer = 0;
+            if (player.getScore() > highscore) {
+                highscore = player.getScore();
+                highscoreLevel = player.getLevel();
+                HighscoreManager.save(highscore, highscoreLevel);
+            }
         }
     }
 
@@ -522,5 +535,17 @@ public class GameScreen implements Screen {
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Error disposing resources", e);
         }
+    }
+
+    public int getHighscore() {
+        return highscore;
+    }
+
+    public int getHighscoreLevel() {
+        return highscoreLevel;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

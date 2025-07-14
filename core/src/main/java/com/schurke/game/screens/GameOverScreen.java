@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.schurke.game.Main;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.Cursor;
+import com.schurke.game.core.HighscoreManager;
 
 public class GameOverScreen implements Screen {
     private final Main game;
@@ -28,8 +29,11 @@ public class GameOverScreen implements Screen {
     private final GlyphLayout layout;
     private final ShapeRenderer shapeRenderer;
     private final GameScreen gameScreen;
+    private final int highscore;
+    private final int highscoreLevel;
+    private final int lastScore;
 
-    public GameOverScreen(Main game, GameScreen gameScreen) {
+    public GameOverScreen(Main game, GameScreen gameScreen, int highscore, int highscoreLevel) {
         this.game = game;
         this.gameScreen = gameScreen;
         this.batch = new SpriteBatch();
@@ -39,6 +43,9 @@ public class GameOverScreen implements Screen {
         this.stage = new Stage(new ScreenViewport());
         this.layout = new GlyphLayout();
         this.shapeRenderer = new ShapeRenderer();
+        this.highscore = highscore;
+        this.highscoreLevel = highscoreLevel;
+        this.lastScore = gameScreen.getPlayer().getScore();
 
         // Calculate center position
         float centerX = Gdx.graphics.getWidth() / 2f;
@@ -112,7 +119,7 @@ public class GameOverScreen implements Screen {
         // Add semi-transparent overlay
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0, 0, 0, 0.7f);
         shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -123,6 +130,27 @@ public class GameOverScreen implements Screen {
         // Draw the stage with buttons
         stage.act(delta);
         stage.draw();
+
+        // Draw highscore and last score well below the buttons
+        batch.begin();
+        font.getData().setScale(1.3f);
+        font.setColor(Color.WHITE);
+        String scoreText = "Score: " + lastScore;
+        layout.setText(font, scoreText);
+        float yBase = Gdx.graphics.getHeight() / 2f - 350;
+        font.draw(batch, layout, Gdx.graphics.getWidth() / 2f - layout.width / 2, yBase);
+        String highscoreText = "Highscore: " + highscore + " (Level " + highscoreLevel + ")";
+        layout.setText(font, highscoreText);
+        font.draw(batch, layout, Gdx.graphics.getWidth() / 2f - layout.width / 2, yBase - 40);
+        if (lastScore == highscore && highscore > 0) {
+            font.setColor(Color.GOLD);
+            String newHigh = "New Highscore!";
+            layout.setText(font, newHigh);
+            font.draw(batch, layout, Gdx.graphics.getWidth() / 2f - layout.width / 2, yBase - 80);
+            font.setColor(Color.WHITE);
+        }
+        font.getData().setScale(3.0f);
+        batch.end();
     }
 
     @Override
